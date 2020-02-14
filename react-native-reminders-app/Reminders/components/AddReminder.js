@@ -5,15 +5,15 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Button,
+  Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 
 export default AddReminder = ({addReminder}) => {
   const [text, setText] = useState('');
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateTime, setDateTime] = useState(new Date());
+  const [modalVisible, setModalVisible] = useState(false);
 
   function onChange(textValue) {
     setText(textValue);
@@ -23,49 +23,76 @@ export default AddReminder = ({addReminder}) => {
     setDateTime(newDate);
   }
 
+  function onAddNewPress() {
+    setModalVisible(true);
+  }
+
   function onAddPress() {
     addReminder(text, dateTime);
     setText('');
+    setModalVisible(false);
   }
 
   const styles = StyleSheet.create({
     input: {
-      height: 60,
+      height: 75,
       padding: 8,
-      fontSize: 16,
+      fontSize: 18,
+      marginBottom: 20,
+      borderBottomColor: 'black',
+      borderBottomWidth: 1,
     },
-    addButton: {
-      backgroundColor: '#314b7f',
-      padding: 9,
+    addNewButton: {
+      backgroundColor: '#3399ff',
+      padding: 5,
       margin: 5,
     },
-    addButtonText: {
+    addNewButtonText: {
       color: 'white',
       fontSize: 20,
       textAlign: 'center',
+    },
+    modalButtonText: {
+      color: 'white',
+      fontSize: 15,
+      textAlign: 'center',
+    },
+    buttonView: {
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
+      alignItems: 'center',
+    },
+    modalButton: {
+      backgroundColor: '#3399ff',
+      padding: 9,
+      margin: 5,
+      marginTop: 20,
     },
   });
 
   return (
     <View>
-      <TextInput
-        placeholder="Add New Reminder"
-        style={styles.input}
-        onChangeText={onChange}
-        value={text}
-      />
-      <Button
-        onPress={() => setShowDatePicker(!showDatePicker)}
-        title={'Show/Hide Date Picker'}
-      />
-      {showDatePicker && (
+      <Modal animationType="slide" transparent={false} visible={modalVisible}>
+        <TextInput
+          placeholder="Add New Reminder"
+          style={styles.input}
+          onChangeText={onChange}
+          value={text}
+        />
         <DatePicker date={dateTime} onDateChange={onDateChange} />
-      )}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={onAddPress}
-        disabled={!text}>
-        <Text style={styles.addButtonText}>
+        <View style={styles.buttonView}>
+          <TouchableOpacity
+            style={styles.modalButton}
+            onPress={() => setModalVisible(false)}>
+            <Text style={styles.modalButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.modalButton} onPress={onAddPress}>
+            <Text style={styles.modalButtonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+      <TouchableOpacity style={styles.addNewButton} onPress={onAddNewPress}>
+        <Text style={styles.addNewButtonText}>
           <Icon name="plus" size={20} />
           Add New Reminder
         </Text>

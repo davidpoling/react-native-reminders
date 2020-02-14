@@ -13,10 +13,12 @@ export default App = () => {
     {id: uuid(), text: 'Get dinner ingredients', dateTime: new Date()},
   ]);
 
-  function deleteReminder(id) {
-    setReminders(prevReminders => {
-      return prevReminders.filter(reminder => reminder.id !== id);
-    });
+  function completeReminder(id) {
+    setTimeout(() => {
+      setReminders(prevReminders => {
+        return prevReminders.filter(reminder => reminder.id !== id);
+      });
+    }, 1000);
   }
 
   function addReminder(text, dateTime) {
@@ -38,7 +40,7 @@ export default App = () => {
       <FlatList
         data={reminders}
         renderItem={({item}) => (
-          <ListItem item={item} deleteReminder={deleteReminder} />
+          <ListItem item={item} completeReminder={completeReminder} />
         )}
       />
     </View>

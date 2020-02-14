@@ -2,8 +2,31 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
-export default ListItem = ({item, deleteReminder}) => {
+export default ListItem = ({item, completeReminder}) => {
   const [dateTimeString, setDateTimeString] = useState('');
+  const [iconName, setIconName] = useState('circle');
+  const [iconColor, setIconColor] = useState('firebrick');
+
+  useEffect(() => {
+    if (item.dateTime) {
+      const dayMonthString = item.dateTime
+        .toString()
+        .substring(
+          0,
+          item.dateTime
+            .toString()
+            .indexOf(item.dateTime.getFullYear().toString()) - 1,
+        );
+      const time = item.dateTime.toLocaleTimeString();
+      setDateTimeString(dayMonthString + ' ' + time);
+    }
+  }, [item]);
+
+  function iconPressed() {
+    setIconName('check');
+    setIconColor('green');
+    completeReminder(item.id);
+  }
 
   const styles = StyleSheet.create({
     listItem: {
@@ -20,24 +43,23 @@ export default ListItem = ({item, deleteReminder}) => {
     listItemText: {
       fontSize: 18,
     },
+    listReminderDateView: {
+      flexDirection: 'column',
+    },
   });
-
-  useEffect(() => {
-    if (item.dateTime) {
-      setDateTimeString(item.dateTime.toLocaleString());
-    }
-  }, [item]);
 
   return (
     <TouchableOpacity style={styles.listItem}>
       <View style={styles.listItemView}>
-        <Text style={styles.listItemText}>{item.text}</Text>
-        {/* <Text style={styles.listItemText}>{dateTimeString}</Text> */}
+        <View style={styles.listReminderDateView}>
+          <Text style={styles.listItemText}>{item.text}</Text>
+          <Text style={styles.listItemText}>{dateTimeString}</Text>
+        </View>
         <Icon
-          name="remove"
+          name={iconName}
           size={20}
-          color="firebrick"
-          onPress={() => deleteReminder(item.id)}
+          color={iconColor}
+          onPress={iconPressed}
         />
       </View>
     </TouchableOpacity>
