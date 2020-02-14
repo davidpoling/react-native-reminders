@@ -4,6 +4,7 @@ import {uuid} from 'uuidv4';
 import ListItem from '../components/ListItem';
 import AddReminder from '../components/AddReminder';
 import RemindersContext from '../context/RemindersContext';
+import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
 export default RemindersScreen = ({navigation}) => {
   const [reminders, setReminders] = useState([
@@ -39,6 +40,16 @@ export default RemindersScreen = ({navigation}) => {
     container: {
       flex: 1,
     },
+    screenButton: {
+      backgroundColor: '#3399ff',
+      padding: 5,
+      margin: 5,
+    },
+    screenButtonText: {
+      color: 'white',
+      fontSize: 20,
+      textAlign: 'center',
+    },
   });
 
   return (
@@ -51,10 +62,13 @@ export default RemindersScreen = ({navigation}) => {
         )}
       />
       <TouchableOpacity
+        style={styles.screenButton}
         onPress={() => {
           navigation.navigate('Calendar Screen');
         }}>
-        <Text>To Calendar Screen</Text>
+        <Text style={styles.screenButtonText}>
+          <Icon name="calendar" size={20} />
+        </Text>
       </TouchableOpacity>
     </View>
   );
