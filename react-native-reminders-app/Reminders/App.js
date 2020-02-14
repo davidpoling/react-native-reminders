@@ -1,31 +1,15 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, FlatList} from 'react-native';
-import {uuid} from 'uuidv4';
+import React from 'react';
+import 'react-native-gesture-handler';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {View, StyleSheet} from 'react-native';
 import Header from './components/Header';
-import ListItem from './components/ListItem';
-import AddReminder from './components/AddReminder';
+import RemindersScreen from './screens/RemindersScreen';
+import {RemindersProvider} from './context/RemindersContext';
+import CalendarScreen from './screens/CalendarScreen';
 
 export default App = () => {
-  const [reminders, setReminders] = useState([
-    {id: uuid(), text: 'Drink Coffee', dateTime: new Date()},
-    {id: uuid(), text: 'Peel Eggs', dateTime: new Date()},
-    {id: uuid(), text: 'Get Mail', dateTime: new Date()},
-    {id: uuid(), text: 'Get dinner ingredients', dateTime: new Date()},
-  ]);
-
-  function completeReminder(id) {
-    setTimeout(() => {
-      setReminders(prevReminders => {
-        return prevReminders.filter(reminder => reminder.id !== id);
-      });
-    }, 1000);
-  }
-
-  function addReminder(text, dateTime) {
-    setReminders(prevReminders => {
-      return [{id: uuid(), text: text, dateTime: dateTime}, ...prevReminders];
-    });
-  }
+  const Stack = createStackNavigator();
 
   const styles = StyleSheet.create({
     container: {
@@ -36,13 +20,16 @@ export default App = () => {
   return (
     <View style={styles.container}>
       <Header title="Reminders" />
-      <AddReminder addReminder={addReminder} />
-      <FlatList
-        data={reminders}
-        renderItem={({item}) => (
-          <ListItem item={item} completeReminder={completeReminder} />
-        )}
-      />
+      <RemindersProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{headerShown: false}}
+            initialRouteName="Reminders Screen">
+            <Stack.Screen name="Reminders Screen" component={RemindersScreen} />
+            <Stack.Screen name="Calendar Screen" component={CalendarScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </RemindersProvider>
     </View>
   );
 };
