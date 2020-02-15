@@ -8,10 +8,30 @@ import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
 export default RemindersScreen = ({navigation}) => {
   const [reminders, setReminders] = useState([
-    {id: uuid(), text: 'Drink Coffee', dateTime: new Date()},
-    {id: uuid(), text: 'Peel Eggs', dateTime: new Date()},
-    {id: uuid(), text: 'Get Mail', dateTime: new Date()},
-    {id: uuid(), text: 'Get dinner ingredients', dateTime: new Date()},
+    {
+      id: uuid(),
+      text: 'Drink Coffee',
+      dateTime: new Date(),
+      dateTimeString: generateDateTimeString(new Date()),
+    },
+    {
+      id: uuid(),
+      text: 'Peel Eggs',
+      dateTime: new Date(),
+      dateTimeString: generateDateTimeString(new Date()),
+    },
+    {
+      id: uuid(),
+      text: 'Get Mail',
+      dateTime: new Date(),
+      dateTimeString: generateDateTimeString(new Date()),
+    },
+    {
+      id: uuid(),
+      text: 'Get dinner ingredients',
+      dateTime: new Date(),
+      dateTimeString: generateDateTimeString(new Date()),
+    },
   ]);
 
   const remindersContext = useContext(RemindersContext);
@@ -32,8 +52,27 @@ export default RemindersScreen = ({navigation}) => {
 
   function addReminder(text, dateTime) {
     setReminders(prevReminders => {
-      return [{id: uuid(), text: text, dateTime: dateTime}, ...prevReminders];
+      return [
+        {
+          id: uuid(),
+          text: text,
+          dateTime: dateTime,
+          dateTimeString: generateDateTimeString(dateTime),
+        },
+        ...prevReminders,
+      ];
     });
+  }
+
+  function generateDateTimeString(dateTime) {
+    const dayMonthString = dateTime
+      .toString()
+      .substring(
+        0,
+        dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1,
+      );
+    const time = dateTime.toLocaleTimeString();
+    return dayMonthString + ' ' + time;
   }
 
   const styles = StyleSheet.create({

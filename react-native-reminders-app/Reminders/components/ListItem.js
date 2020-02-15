@@ -3,24 +3,8 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
 export default ListItem = ({item, completeReminder}) => {
-  const [dateTimeString, setDateTimeString] = useState('');
   const [iconName, setIconName] = useState('circle');
   const [iconColor, setIconColor] = useState('firebrick');
-
-  useEffect(() => {
-    if (item.dateTime) {
-      const dayMonthString = item.dateTime
-        .toString()
-        .substring(
-          0,
-          item.dateTime
-            .toString()
-            .indexOf(item.dateTime.getFullYear().toString()) - 1,
-        );
-      const time = item.dateTime.toLocaleTimeString();
-      setDateTimeString(dayMonthString + ' ' + time);
-    }
-  }, [item]);
 
   function iconPressed() {
     setIconName('check');
@@ -53,7 +37,7 @@ export default ListItem = ({item, completeReminder}) => {
       <View style={styles.listItemView}>
         <View style={styles.listReminderDateView}>
           <Text style={styles.listItemText}>{item.text}</Text>
-          <Text style={styles.listItemText}>{dateTimeString}</Text>
+          <Text style={styles.listItemText}>{item.dateTimeString}</Text>
         </View>
         <Icon
           name={iconName}

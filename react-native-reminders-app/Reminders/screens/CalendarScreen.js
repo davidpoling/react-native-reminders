@@ -1,24 +1,52 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
-import {Calendar, Agenda} from 'react-native-calendars';
+import {Agenda} from 'react-native-calendars';
 import RemindersContext from '../context/RemindersContext';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
 export default CalendarScreen = ({navigation}) => {
-  const [reminders, setReminders] = useState({});
-  const [calendarItems, setCalendarItems] = useState({
-    '2020-02-14': [{name: 'Random Date'}],
-    '2020-02-15': [{name: 'Anotha One'}],
-    '2020-03-10': [{name: 'Example'}],
-  });
+  const [calendarItems, setCalendarItems] = useState({});
   const remindersContext = useContext(RemindersContext);
 
   useEffect(() => {
-    const currentReminders = remindersContext.reminders;
-    if (currentReminders) {
-      setReminders(currentReminders);
+    const reminders = remindersContext.reminders;
+    if (reminders) {
+      setCalendarItems(generateCalendarItems(reminders));
     }
   }, [remindersContext]);
+
+  function generateCalendarItems(reminders) {
+    let newCalendarItems = {};
+
+    reminders.forEach(reminder => {
+      const key = generateKeyFromReminder(reminder);
+      if (newCalendarItems[key]) {
+        newCalendarItems[key].push({name: getFormattedReminderText(reminder)});
+      } else {
+        newCalendarItems[key] = [{name: getFormattedReminderText(reminder)}];
+      }
+    });
+
+    return newCalendarItems;
+  }
+
+  function generateKeyFromReminder(reminder) {
+    const year = reminder.dateTime.getFullYear();
+    const day = reminder.dateTime.getDate();
+    let month = reminder.dateTime.getMonth() + 1;
+
+    // If the month is < 10, add a prefixed zero.
+    // The <Agenda /> component cannot read months without a prefixed zero.
+    if (month < 10) {
+      month = '0' + month;
+    }
+
+    return year + '-' + month + '-' + day;
+  }
+
+  function getFormattedReminderText(reminder) {
+    return reminder.text + ' - ' + reminder.dateTimeString;
+  }
 
   function renderItem(item) {
     return (
