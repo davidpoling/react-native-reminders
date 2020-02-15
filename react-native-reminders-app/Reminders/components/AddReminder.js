@@ -14,9 +14,11 @@ export default AddReminder = ({addReminder}) => {
   const [text, setText] = useState('');
   const [dateTime, setDateTime] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
+  const [addButtonEnabled, setAddButtonEnabled] = useState(false);
 
   function onChange(textValue) {
     setText(textValue);
+    setAddButtonEnabled(textValue !== '' ? true : false);
   }
 
   function onDateChange(newDate) {
@@ -73,6 +75,12 @@ export default AddReminder = ({addReminder}) => {
       flex: 0.5,
       width: 420,
     },
+    modalButtonDisabled: {
+      backgroundColor: 'lightgray',
+      padding: 9,
+      margin: 5,
+      marginTop: 20,
+    },
   });
 
   return (
@@ -95,7 +103,12 @@ export default AddReminder = ({addReminder}) => {
             onPress={() => setModalVisible(false)}>
             <Text style={styles.modalButtonText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modalButton} onPress={onAddPress}>
+          <TouchableOpacity
+            style={
+              addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled
+            }
+            onPress={onAddPress}
+            disabled={!addButtonEnabled}>
             <Text style={styles.modalButtonText}>Add</Text>
           </TouchableOpacity>
         </View>
