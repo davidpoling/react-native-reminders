@@ -10,7 +10,7 @@ export default CalendarScreen = ({navigation}) => {
 
   useEffect(() => {
     const reminders = remindersContext.reminders;
-    if (reminders) {
+    if (reminders && reminders.length > 0) {
       setCalendarItems(generateCalendarItems(reminders));
     }
   }, [remindersContext]);

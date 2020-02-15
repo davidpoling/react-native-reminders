@@ -56,6 +56,7 @@ export default AddReminder = ({addReminder}) => {
       color: 'white',
       fontSize: 15,
       textAlign: 'center',
+      width: 100,
     },
     buttonView: {
       flexDirection: 'row',
@@ -68,6 +69,10 @@ export default AddReminder = ({addReminder}) => {
       margin: 5,
       marginTop: 20,
     },
+    datePicker: {
+      flex: 0.5,
+      width: 420,
+    },
   });
 
   return (
@@ -79,7 +84,11 @@ export default AddReminder = ({addReminder}) => {
           onChangeText={onChange}
           value={text}
         />
-        <DatePicker date={dateTime} onDateChange={onDateChange} />
+        <DatePicker
+          style={styles.datePicker}
+          date={dateTime}
+          onDateChange={onDateChange}
+        />
         <View style={styles.buttonView}>
           <TouchableOpacity
             style={styles.modalButton}
