@@ -6,6 +6,7 @@ const RemindersService = require("./reminders-service/reminders-service/reminder
 const hostname = "127.0.0.1";
 const port = "7779";
 
+// TODO: Refactor to use expressjs for proper routing.
 const server = http.createServer((req, res) => {
   console.log("Request received");
   let url = URL.parse(req.url, true);

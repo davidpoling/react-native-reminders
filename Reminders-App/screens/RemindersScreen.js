@@ -5,34 +5,10 @@ import ListItem from '../components/ListItem';
 import AddReminder from '../components/AddReminder';
 import RemindersContext from '../context/RemindersContext';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
+import {remindersService} from '../config/serverConfig';
 
 export default RemindersScreen = ({navigation}) => {
-  const [reminders, setReminders] = useState([
-    {
-      id: uuid(),
-      text: 'Drink Coffee',
-      dateTime: new Date(),
-      dateTimeString: generateDateTimeString(new Date()),
-    },
-    {
-      id: uuid(),
-      text: 'Peel Eggs',
-      dateTime: new Date(),
-      dateTimeString: generateDateTimeString(new Date()),
-    },
-    {
-      id: uuid(),
-      text: 'Get Mail',
-      dateTime: new Date(),
-      dateTimeString: generateDateTimeString(new Date()),
-    },
-    {
-      id: uuid(),
-      text: 'Get dinner ingredients',
-      dateTime: new Date(),
-      dateTimeString: generateDateTimeString(new Date()),
-    },
-  ]);
+  const [reminders, setReminders] = useState([]);
 
   const remindersContext = useContext(RemindersContext);
 
@@ -42,26 +18,41 @@ export default RemindersScreen = ({navigation}) => {
     }
   }, [reminders]);
 
-  function completeReminder(id) {
-    setTimeout(() => {
+  useEffect(() => {
+    remindersService
+      .getReminders()
+      .then(reminders => {
+        setReminders(reminders);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, []);
+
+  async function completeReminder(id) {
+    setTimeout(async () => {
+      await remindersService.deleteReminder(id);
       setReminders(prevReminders => {
         return prevReminders.filter(reminder => reminder.id !== id);
       });
     }, 1000);
   }
 
-  function addReminder(text, dateTime) {
-    setReminders(prevReminders => {
-      return [
-        {
-          id: uuid(),
-          text: text,
-          dateTime: dateTime,
-          dateTimeString: generateDateTimeString(dateTime),
-        },
-        ...prevReminders,
-      ];
-    });
+  async function addReminder(text, dateTime) {
+    const newReminder = {
+      id: uuid(),
+      text: text,
+      dateTime: dateTime,
+      dateTimeString: generateDateTimeString(dateTime),
+    };
+    try {
+      await remindersService.addReminder(newReminder);
+      setReminders(prevReminders => {
+        return [newReminder, ...prevReminders];
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function generateDateTimeString(dateTime) {
