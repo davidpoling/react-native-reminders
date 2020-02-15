@@ -13,7 +13,7 @@ export default RemindersScreen = ({navigation}) => {
   const remindersContext = useContext(RemindersContext);
 
   useEffect(() => {
-    if (reminders && reminders.length > 0) {
+    if (reminders) {
       remindersContext.updateReminders(reminders);
     }
   }, [reminders]);
