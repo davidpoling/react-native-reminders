@@ -73,7 +73,6 @@ export default AddReminder = ({addReminder}) => {
       marginTop: 20,
     },
     datePicker: {
-      flex: 0.5,
       width: 420,
     },
     modalButtonDisabled: {
