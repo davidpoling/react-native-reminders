@@ -33,6 +33,7 @@ export default AddReminder = ({addReminder}) => {
     addReminder(text, dateTime);
     setText('');
     setModalVisible(false);
+    setAddButtonEnabled(false);
   }
 
   const styles = StyleSheet.create({

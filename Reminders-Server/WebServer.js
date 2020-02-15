@@ -8,7 +8,6 @@ const port = "7779";
 
 // TODO: Refactor to use expressjs for proper routing.
 const server = http.createServer((req, res) => {
-  console.log("Request received");
   let url = URL.parse(req.url, true);
   remindersRestService.handleRequest(req, res, url);
 });
