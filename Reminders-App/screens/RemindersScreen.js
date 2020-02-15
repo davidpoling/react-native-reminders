@@ -80,17 +80,32 @@ export default RemindersScreen = ({navigation}) => {
       fontSize: 20,
       textAlign: 'center',
     },
+    noRemindersText: {
+      fontSize: 18,
+    },
+    noRemindersContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   });
 
   return (
     <View style={styles.container}>
       <AddReminder addReminder={addReminder} />
-      <FlatList
-        data={reminders}
-        renderItem={({item}) => (
-          <ListItem item={item} completeReminder={completeReminder} />
-        )}
-      />
+      {reminders.length > 0 ? (
+        <FlatList
+          data={reminders}
+          renderItem={({item}) => (
+            <ListItem item={item} completeReminder={completeReminder} />
+          )}
+        />
+      ) : (
+        <View style={styles.noRemindersContainer}>
+          <Text style={styles.noRemindersText}>No Reminders</Text>
+        </View>
+      )}
+
       <TouchableOpacity
         style={styles.screenButton}
         onPress={() => {
