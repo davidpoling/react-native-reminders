@@ -19,7 +19,7 @@ export default CalendarScreen = ({navigation}) => {
     let newCalendarItems = {};
 
     reminders.forEach(reminder => {
-      const key = generateKeyFromReminder(reminder);
+      const key = generateDateKeyFromDateTime(reminder.dateTime);
       if (newCalendarItems[key]) {
         newCalendarItems[key].push({name: getFormattedReminderText(reminder)});
       } else {
@@ -30,10 +30,10 @@ export default CalendarScreen = ({navigation}) => {
     return newCalendarItems;
   }
 
-  function generateKeyFromReminder(reminder) {
-    const year = reminder.dateTime.getFullYear();
-    const day = reminder.dateTime.getDate();
-    let month = reminder.dateTime.getMonth() + 1;
+  function generateDateKeyFromDateTime(dateTime) {
+    const year = dateTime.getFullYear();
+    const day = dateTime.getDate();
+    let month = dateTime.getMonth() + 1;
 
     // If the month is < 10, add a prefixed zero.
     // The <Agenda /> component cannot read months without a prefixed zero.
@@ -104,6 +104,7 @@ export default CalendarScreen = ({navigation}) => {
         renderItem={renderItem}
         renderEmptyDate={renderEmptyDate}
         renderEmptyData={renderEmptyData}
+        selected={generateDateKeyFromDateTime(new Date())}
       />
       <TouchableOpacity
         style={styles.screenButton}

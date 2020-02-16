@@ -6,6 +6,7 @@ import AddReminder from '../components/AddReminder';
 import RemindersContext from '../context/RemindersContext';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import {remindersService} from '../config/serverConfig';
+import moment from 'moment';
 
 export default RemindersScreen = ({navigation}) => {
   const [reminders, setReminders] = useState([]);
@@ -62,7 +63,7 @@ export default RemindersScreen = ({navigation}) => {
         0,
         dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1,
       );
-    const time = dateTime.toLocaleTimeString();
+    const time = moment(dateTime).format('LT');
     return dayMonthString + ' ' + time;
   }
 
