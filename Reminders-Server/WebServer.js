@@ -16,3 +16,9 @@ const remindersRestService = new RemindersRestService(new RemindersService());
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
+/**
+ * For future development:
+ * 1. Use a WebSocket connection to alert the user of their reminder at any given time. Could possible just open the WebSocket connection and have a job that periodically checks the reminder times.
+ * 2. Use a data store (like MongoDB) for storing reminders.
+ * 3. As stated in the above TODO, refactor the backend services to use ExpressJS for proper routing.
+ */
