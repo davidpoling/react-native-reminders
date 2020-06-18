@@ -7,8 +7,9 @@ import RemindersContext from '../context/RemindersContext';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import {remindersService} from '../config/serverConfig';
 import moment from 'moment';
+import Reminder from '../beans/Reminder';
 
-export default RemindersScreen = ({navigation}) => {
+export default (RemindersScreen = ({navigation}) => {
   const [reminders, setReminders] = useState([]);
 
   const remindersContext = useContext(RemindersContext);
@@ -40,12 +41,7 @@ export default RemindersScreen = ({navigation}) => {
   }
 
   async function addReminder(text, dateTime) {
-    const newReminder = {
-      id: uuid(),
-      text: text,
-      dateTime: dateTime,
-      dateTimeString: generateDateTimeString(dateTime),
-    };
+    const newReminder = new Reminder(text, dateTime);
     try {
       await remindersService.addReminder(newReminder);
       setReminders(prevReminders => {
@@ -54,17 +50,6 @@ export default RemindersScreen = ({navigation}) => {
     } catch (error) {
       console.log(error);
     }
-  }
-
-  function generateDateTimeString(dateTime) {
-    const dayMonthString = dateTime
-      .toString()
-      .substring(
-        0,
-        dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1,
-      );
-    const time = moment(dateTime).format('LT');
-    return dayMonthString + ' ' + time;
   }
 
   const styles = StyleSheet.create({
@@ -118,4 +103,4 @@ export default RemindersScreen = ({navigation}) => {
       </TouchableOpacity>
     </View>
   );
-};
+});
