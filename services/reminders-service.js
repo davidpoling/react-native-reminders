@@ -1,26 +1,27 @@
-import Endpoint from './endpoint';
+// import Endpoint from './endpoint';
+import axios from 'axios';
 import {REMINDER_URL} from './rest-constants';
 
 export default class RemindersService {
   getReminders() {
-    return new Endpoint(REMINDER_URL).get().then(this.processReminder);
+    return axios.get(REMINDER_URL).then(this.processReminder);
   }
 
   addReminder(reminder) {
-    return new Endpoint(REMINDER_URL).post(reminder);
+    return axios.post(REMINDER_URL, reminder);
   }
 
   updateReminder(reminder) {
-    return new Endpoint(REMINDER_URL).put(reminder);
+    return axios.put(REMINDER_URL, reminder);
   }
 
   deleteReminder(reminderId) {
-    return new Endpoint(REMINDER_URL).delete(reminderId);
+    return axios.delete(REMINDER_URL + '/' + reminderId);
   }
 
   processReminder(reminders) {
-    if (Array.isArray(reminders)) {
-      return reminders.map((reminder) => {
+    if (Array.isArray(reminders.data)) {
+      return reminders.data.map(reminder => {
         reminder.dateTime = new Date(reminder.dateTime);
         return reminder;
       });

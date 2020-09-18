@@ -1,8 +1,7 @@
-import {uuid} from 'uuidv4';
+import moment from 'moment';
 
 export default class Reminder {
   constructor(text, dateTime) {
-    this.id = uuid();
     this.text = text;
     this.dateTime = dateTime;
     this.dateTimeString = this.generateDateTimeString(this.dateTime);

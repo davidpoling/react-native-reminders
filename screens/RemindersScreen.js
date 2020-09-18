@@ -6,7 +6,7 @@ import RemindersContext from '../context/RemindersContext';
 import {remindersService} from '../config/serverConfig';
 import Reminder from '../beans/Reminder';
 
-export default RemindersScreen = ({navigation}) => {
+export default (RemindersScreen = ({navigation}) => {
   const [reminders, setReminders] = useState([]);
 
   const remindersContext = useContext(RemindersContext);
@@ -20,10 +20,10 @@ export default RemindersScreen = ({navigation}) => {
   useEffect(() => {
     remindersService
       .getReminders()
-      .then((reminders) => {
+      .then(reminders => {
         setReminders(reminders);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log(error);
       });
   }, []);
@@ -31,18 +31,19 @@ export default RemindersScreen = ({navigation}) => {
   async function completeReminder(id) {
     setTimeout(async () => {
       await remindersService.deleteReminder(id);
-      setReminders((prevReminders) => {
-        return prevReminders.filter((reminder) => reminder.id !== id);
+      setReminders(prevReminders => {
+        return prevReminders.filter(reminder => reminder.id !== id);
       });
     }, 1000);
   }
 
   async function addReminder(text, dateTime) {
-    const newReminder = new Reminder(text, dateTime);
     try {
-      await remindersService.addReminder(newReminder);
-      setReminders((prevReminders) => {
-        return [newReminder, ...prevReminders];
+      const newReminder = await remindersService.addReminder(
+        new Reminder(text, dateTime),
+      );
+      setReminders(prevReminders => {
+        return [newReminder.data, ...prevReminders];
       });
     } catch (error) {
       console.log(error);
@@ -90,4 +91,4 @@ export default RemindersScreen = ({navigation}) => {
       )}
     </View>
   );
-};
+});
