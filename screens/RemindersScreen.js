@@ -1,15 +1,12 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, FlatList, TouchableOpacity, Text} from 'react-native';
-import {uuid} from 'uuidv4';
+import {View, StyleSheet, FlatList, Text} from 'react-native';
 import ListItem from '../components/ListItem';
 import AddReminder from '../components/AddReminder';
 import RemindersContext from '../context/RemindersContext';
-import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import {remindersService} from '../config/serverConfig';
-import moment from 'moment';
 import Reminder from '../beans/Reminder';
 
-export default (RemindersScreen = ({navigation}) => {
+export default RemindersScreen = ({navigation}) => {
   const [reminders, setReminders] = useState([]);
 
   const remindersContext = useContext(RemindersContext);
@@ -23,10 +20,10 @@ export default (RemindersScreen = ({navigation}) => {
   useEffect(() => {
     remindersService
       .getReminders()
-      .then(reminders => {
+      .then((reminders) => {
         setReminders(reminders);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   }, []);
@@ -34,8 +31,8 @@ export default (RemindersScreen = ({navigation}) => {
   async function completeReminder(id) {
     setTimeout(async () => {
       await remindersService.deleteReminder(id);
-      setReminders(prevReminders => {
-        return prevReminders.filter(reminder => reminder.id !== id);
+      setReminders((prevReminders) => {
+        return prevReminders.filter((reminder) => reminder.id !== id);
       });
     }, 1000);
   }
@@ -44,7 +41,7 @@ export default (RemindersScreen = ({navigation}) => {
     const newReminder = new Reminder(text, dateTime);
     try {
       await remindersService.addReminder(newReminder);
-      setReminders(prevReminders => {
+      setReminders((prevReminders) => {
         return [newReminder, ...prevReminders];
       });
     } catch (error) {
@@ -91,16 +88,6 @@ export default (RemindersScreen = ({navigation}) => {
           <Text style={styles.noRemindersText}>No Reminders</Text>
         </View>
       )}
-
-      <TouchableOpacity
-        style={styles.screenButton}
-        onPress={() => {
-          navigation.navigate('Calendar Screen');
-        }}>
-        <Text style={styles.screenButtonText}>
-          <Icon name="calendar" size={20} />
-        </Text>
-      </TouchableOpacity>
     </View>
   );
-});
+};

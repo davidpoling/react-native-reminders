@@ -6,14 +6,13 @@ import {View, StyleSheet, YellowBox} from 'react-native';
 import Header from './components/Header';
 import RemindersScreen from './screens/RemindersScreen';
 import {RemindersProvider} from './context/RemindersContext';
-import CalendarScreen from './screens/CalendarScreen';
 
-export default App = () => {
+export default (App = () => {
   const Stack = createStackNavigator();
 
   // Currently a dependency cycle within react-native.
   // This command just removes the yellow box warning from the app display.
-  YellowBox.ignoreWarnings(['Require cycle:']);
+  // YellowBox.ignoreWarnings(['Require cycle:']);
 
   const styles = StyleSheet.create({
     container: {
@@ -30,10 +29,9 @@ export default App = () => {
             screenOptions={{headerShown: false}}
             initialRouteName="Reminders Screen">
             <Stack.Screen name="Reminders Screen" component={RemindersScreen} />
-            <Stack.Screen name="Calendar Screen" component={CalendarScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </RemindersProvider>
     </View>
   );
-};
+});
