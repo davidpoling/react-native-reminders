@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/", // path to output directory
+    "sourceMap": true, // allow sourcemap support
+    "strictNullChecks": true, // enable strict null checks as a best practice
+    "module": "commonjs", // specify module code generation
+    "jsx": "react-native", // use typescript to transpile jsx to js
+    "target": "esnext", // specify ECMAScript target version
+    "allowJs": true, // allow a partial TypeScript and JavaScript codebase
+    "lib": ["es6", "dom"],
+    "typeRoots": ["../node_modules/@types", "../@types"],
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src", "test"],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
+}

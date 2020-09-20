@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 
-export default ListItem = ({item, completeReminder}) => {
-  const [iconName, setIconName] = useState('circle');
-  const [iconColor, setIconColor] = useState('firebrick');
+export default function ListItem({item, completeReminder}: any) {
+  const [iconName, setIconName] = useState<string>('circle');
+  const [iconColor, setIconColor] = useState<string>('firebrick');
 
   function iconPressed() {
     setIconName('check');
@@ -48,4 +48,4 @@ export default ListItem = ({item, completeReminder}) => {
       </View>
     </TouchableOpacity>
   );
-};
+}

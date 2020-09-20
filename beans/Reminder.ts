@@ -1,6 +1,11 @@
 import moment from 'moment';
 
 export default class Reminder {
+  id: string;
+  text: string;
+  dateTime: Date;
+  dateTimeString: string;
+
   constructor(text, dateTime) {
     this.text = text;
     this.dateTime = dateTime;

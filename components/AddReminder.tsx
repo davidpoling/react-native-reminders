@@ -10,18 +10,18 @@ import {
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 
-export default AddReminder = ({addReminder}) => {
-  const [text, setText] = useState('');
-  const [dateTime, setDateTime] = useState(new Date());
-  const [modalVisible, setModalVisible] = useState(false);
-  const [addButtonEnabled, setAddButtonEnabled] = useState(false);
+export default function AddReminder({addReminder}: any) {
+  const [text, setText] = useState<string>('');
+  const [dateTime, setDateTime] = useState<Date>(new Date());
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [addButtonEnabled, setAddButtonEnabled] = useState<boolean>(false);
 
-  function onChange(textValue) {
+  function onChange(textValue: string) {
     setText(textValue);
     setAddButtonEnabled(textValue !== '' ? true : false);
   }
 
-  function onDateChange(newDate) {
+  function onDateChange(newDate: Date) {
     setDateTime(newDate);
   }
 
@@ -121,4 +121,4 @@ export default AddReminder = ({addReminder}) => {
       </TouchableOpacity>
     </View>
   );
-};
+}

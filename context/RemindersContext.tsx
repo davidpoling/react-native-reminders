@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
+import Reminder from '../beans/Reminder';
 
-const RemindersContext = React.createContext([]);
+const RemindersContext = React.createContext<any>([]);
 
 export const RemindersConsumer = RemindersContext.Consumer;
-export const RemindersProvider = function RemindersProvider(props) {
-  const [reminders, setReminders] = useState([]);
 
-  function updateReminders(newReminders) {
+export const RemindersProvider = function RemindersProvider(props: any) {
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+
+  function updateReminders(newReminders: Reminder[]) {
     setReminders(newReminders);
   }
 

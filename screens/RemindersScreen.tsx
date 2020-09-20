@@ -5,11 +5,12 @@ import AddReminder from '../components/AddReminder';
 import RemindersContext from '../context/RemindersContext';
 import {remindersService} from '../config/serverConfig';
 import Reminder from '../beans/Reminder';
+import Header from '../components/Header';
 
-export default (RemindersScreen = ({navigation}) => {
-  const [reminders, setReminders] = useState([]);
+export default function RemindersScreen({navigation}: any) {
+  const [reminders, setReminders] = useState<Reminder[]>([]);
 
-  const remindersContext = useContext(RemindersContext);
+  const remindersContext = useContext<any>(RemindersContext);
 
   useEffect(() => {
     if (reminders) {
@@ -28,7 +29,7 @@ export default (RemindersScreen = ({navigation}) => {
       });
   }, []);
 
-  async function completeReminder(id) {
+  async function completeReminder(id: string) {
     setTimeout(async () => {
       await remindersService.deleteReminder(id);
       setReminders(prevReminders => {
@@ -37,13 +38,13 @@ export default (RemindersScreen = ({navigation}) => {
     }, 1000);
   }
 
-  async function addReminder(text, dateTime) {
+  async function addReminder(text: string, dateTime: Date) {
     try {
       const newReminder = await remindersService.addReminder(
         new Reminder(text, dateTime),
       );
       setReminders(prevReminders => {
-        return [newReminder.data, ...prevReminders];
+        return [newReminder, ...prevReminders];
       });
     } catch (error) {
       console.log(error);
@@ -76,6 +77,7 @@ export default (RemindersScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <Header title="Reminders" />
       <AddReminder addReminder={addReminder} />
       {reminders.length > 0 ? (
         <FlatList
@@ -91,4 +93,4 @@ export default (RemindersScreen = ({navigation}) => {
       )}
     </View>
   );
-});
+}
