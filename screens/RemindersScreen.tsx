@@ -1,11 +1,12 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, FlatList, Text} from 'react-native';
+import {View, FlatList, Text} from 'react-native';
 import ListItem from '../components/ListItem';
 import AddReminder from '../components/AddReminder';
 import RemindersContext from '../context/RemindersContext';
 import {remindersService} from '../config/serverConfig';
 import Reminder from '../beans/Reminder';
 import Header from '../components/Header';
+import styles from './ScreenStyles';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -51,30 +52,6 @@ export default function RemindersScreen({navigation}: any) {
     }
   }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    screenButton: {
-      backgroundColor: '#3399ff',
-      padding: 5,
-      margin: 5,
-    },
-    screenButtonText: {
-      color: 'white',
-      fontSize: 20,
-      textAlign: 'center',
-    },
-    noRemindersText: {
-      fontSize: 18,
-    },
-    noRemindersContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-  });
-
   return (
     <View style={styles.container}>
       <Header title="Reminders" />
@@ -87,8 +64,8 @@ export default function RemindersScreen({navigation}: any) {
           )}
         />
       ) : (
-        <View style={styles.noRemindersContainer}>
-          <Text style={styles.noRemindersText}>No Reminders</Text>
+        <View style={styles.noItemsContainer}>
+          <Text style={styles.noItemsText}>No Reminders</Text>
         </View>
       )}
     </View>

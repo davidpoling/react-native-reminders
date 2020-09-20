@@ -5,14 +5,15 @@ export default class Reminder {
   text: string;
   dateTime: Date;
   dateTimeString: string;
+  complete: boolean;
 
-  constructor(text, dateTime) {
+  constructor(text: string, dateTime: Date) {
     this.text = text;
     this.dateTime = dateTime;
     this.dateTimeString = this.generateDateTimeString(this.dateTime);
   }
 
-  generateDateTimeString(dateTime) {
+  generateDateTimeString(dateTime: Date): string {
     const dayMonthString = dateTime
       .toString()
       .substring(
