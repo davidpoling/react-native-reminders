@@ -1,12 +1,12 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, FlatList, Text} from 'react-native';
-import ListItem from '../components/ListItem';
-import AddReminder from '../components/AddReminder';
+import AddReminder from '../components/reminder/AddReminder';
 import RemindersContext from '../context/RemindersContext';
 import {remindersService} from '../config/serverConfig';
 import Reminder from '../beans/Reminder';
 import Header from '../components/Header';
 import styles from './ScreenStyles';
+import ReminderListItem from '../components/reminder/ReminderListItem';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -60,7 +60,7 @@ export default function RemindersScreen({navigation}: any) {
         <FlatList
           data={reminders}
           renderItem={({item}) => (
-            <ListItem item={item} completeReminder={completeReminder} />
+            <ReminderListItem item={item} completeReminder={completeReminder} />
           )}
         />
       ) : (

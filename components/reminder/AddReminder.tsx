@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/dist/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 
 export default function AddReminder({addReminder}: any) {
@@ -49,6 +49,13 @@ export default function AddReminder({addReminder}: any) {
       backgroundColor: '#3399ff',
       padding: 5,
       margin: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    addNewButtonIcon: {
+      color: 'white',
+      marginRight: 15,
     },
     addNewButtonText: {
       color: 'white',
@@ -114,10 +121,8 @@ export default function AddReminder({addReminder}: any) {
         </View>
       </Modal>
       <TouchableOpacity style={styles.addNewButton} onPress={onAddNewPress}>
-        <Text style={styles.addNewButtonText}>
-          <Icon name="plus" size={20} />
-          Add New Reminder
-        </Text>
+        <Icon name="plus" size={20} style={styles.addNewButtonIcon} />
+        <Text style={styles.addNewButtonText}>Add New Reminder</Text>
       </TouchableOpacity>
     </View>
   );

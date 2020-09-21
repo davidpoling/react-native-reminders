@@ -1,14 +1,12 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import Icon from 'react-native-vector-icons/dist/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function ListItem({item, completeReminder}: any) {
-  const [iconName, setIconName] = useState<string>('circle');
-  const [iconColor, setIconColor] = useState<string>('firebrick');
+export default function ReminderListItem({item, completeReminder}: any) {
+  const [iconName, setIconName] = useState<string>('circle-thin');
 
   function iconPressed() {
-    setIconName('check');
-    setIconColor('green');
+    setIconName('circle');
     completeReminder(item.id);
   }
 
@@ -42,7 +40,7 @@ export default function ListItem({item, completeReminder}: any) {
         <Icon
           name={iconName}
           size={20}
-          color={iconColor}
+          color={'#3399ff'}
           onPress={iconPressed}
         />
       </View>

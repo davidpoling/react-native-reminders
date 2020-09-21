@@ -32,8 +32,8 @@ export default function App() {
 
                 if (route.name === REMINDERS_SCREEN_NAME) {
                   iconName = focused
-                    ? 'ios-checkmark'
-                    : 'ios-checkmark-outline';
+                    ? 'ios-checkmark-circle'
+                    : 'ios-checkmark-circle-outline';
                 } else if (route.name === SHOPPING_LIST_SCREEN_NAME) {
                   iconName = focused ? 'ios-cart' : 'ios-cart-outline';
                 } else if (route.name === RECIPES_SCREEN_NAME) {
