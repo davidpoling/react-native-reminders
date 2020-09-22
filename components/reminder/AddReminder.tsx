@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker';
+import styles from '../AddItemStyles';
 
 export default function AddReminder({addReminder}: any) {
   const [text, setText] = useState<string>('');
@@ -35,60 +36,6 @@ export default function AddReminder({addReminder}: any) {
     setModalVisible(false);
     setAddButtonEnabled(false);
   }
-
-  const styles = StyleSheet.create({
-    input: {
-      height: 75,
-      padding: 8,
-      fontSize: 18,
-      marginBottom: 20,
-      borderBottomColor: 'black',
-      borderBottomWidth: 1,
-    },
-    addNewButton: {
-      backgroundColor: '#3399ff',
-      padding: 5,
-      margin: 5,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row',
-    },
-    addNewButtonIcon: {
-      color: 'white',
-      marginRight: 15,
-    },
-    addNewButtonText: {
-      color: 'white',
-      fontSize: 20,
-      textAlign: 'center',
-    },
-    modalButtonText: {
-      color: 'white',
-      fontSize: 15,
-      textAlign: 'center',
-      width: 100,
-    },
-    buttonView: {
-      flexDirection: 'row',
-      justifyContent: 'space-evenly',
-      alignItems: 'center',
-    },
-    modalButton: {
-      backgroundColor: '#3399ff',
-      padding: 9,
-      margin: 5,
-      marginTop: 20,
-    },
-    datePicker: {
-      width: 420,
-    },
-    modalButtonDisabled: {
-      backgroundColor: 'lightgray',
-      padding: 9,
-      margin: 5,
-      marginTop: 20,
-    },
-  });
 
   return (
     <View>
