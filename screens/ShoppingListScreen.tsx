@@ -9,12 +9,16 @@ import styles from './ScreenStyles';
 export default function ShoppingListScreen({navigation}: any) {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
 
+  async function addShoppingListItem(text: string) {
+    // TODO: Finish add logic.
+  }
+
   async function completeShoppingListItem(shoppingListItem: ShoppingListItem) {
     // TODO: Finish complete logic.
   }
 
-  async function addShoppingListItem(text: string) {
-    // TODO: Finish complete logic.
+  async function deleteShoppingListItem(shoppingListItem: ShoppingListItem) {
+    // TODO: Finish delete logic
   }
 
   return (

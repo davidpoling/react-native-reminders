@@ -2,12 +2,16 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function ReminderListItem({item, completeReminder}: any) {
+export default function ReminderListItem({
+  item,
+  completeReminder,
+  onEditPressed,
+}: any) {
   const [iconName, setIconName] = useState<string>('circle-thin');
 
   function iconPressed() {
     setIconName('circle');
-    completeReminder(item.id);
+    completeReminder(item);
   }
 
   const styles = StyleSheet.create({
@@ -19,7 +23,6 @@ export default function ReminderListItem({item, completeReminder}: any) {
     },
     listItemView: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
     },
     listItemText: {
@@ -27,22 +30,39 @@ export default function ReminderListItem({item, completeReminder}: any) {
     },
     listReminderDateView: {
       flexDirection: 'column',
+      marginLeft: 20,
+    },
+    editText: {
+      alignSelf: 'flex-end',
     },
   });
 
   return (
     <TouchableOpacity style={styles.listItem}>
-      <View style={styles.listItemView}>
-        <View style={styles.listReminderDateView}>
-          <Text style={styles.listItemText}>{item.text}</Text>
-          <Text style={styles.listItemText}>{item.dateTimeString}</Text>
+      <View
+        style={{
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignContent: 'center',
+        }}>
+        <View style={styles.listItemView}>
+          <Icon
+            name={iconName}
+            size={25}
+            color={'#3399ff'}
+            onPress={iconPressed}
+          />
+          <View style={styles.listReminderDateView}>
+            <Text style={styles.listItemText}>{item.text}</Text>
+            <Text style={styles.listItemText}>{item.dateTimeString}</Text>
+          </View>
         </View>
-        <Icon
-          name={iconName}
-          size={20}
-          color={'#3399ff'}
-          onPress={iconPressed}
-        />
+        <View>
+          <Text style={styles.editText} onPress={() => onEditPressed(item)}>
+            Edit
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
