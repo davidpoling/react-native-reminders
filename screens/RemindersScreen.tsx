@@ -1,5 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, FlatList, Text, TouchableOpacity} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
 import RemindersContext from '../context/RemindersContext';
 import {remindersService} from '../config/serverConfig';
@@ -159,21 +160,20 @@ export default function RemindersScreen({navigation}: any) {
                   backgroundColor: '#3399ff',
                   padding: 5,
                   margin: 5,
+                  marginBottom: 10,
                   justifyContent: 'center',
                   alignItems: 'center',
                   flexDirection: 'row',
                   alignSelf: 'flex-end',
-                  width: '40%',
+                  width: '20%',
+                  borderRadius: 100,
                 }}
                 onPress={() => deleteReminders(completedReminders)}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: 16,
-                    textAlign: 'right',
-                  }}>
-                  Delete Complete
-                </Text>
+                <Icon
+                  name="ios-trash-outline"
+                  size={20}
+                  style={{color: 'white'}}
+                />
               </TouchableOpacity>
               <FlatList
                 data={completedReminders}

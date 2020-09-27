@@ -3,7 +3,6 @@ import {View, Text, TextInput, TouchableOpacity, Modal} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 import styles from '../AddItemStyles';
-import Reminder from '../../beans/Reminder';
 
 export default function AddReminder({
   addReminder,

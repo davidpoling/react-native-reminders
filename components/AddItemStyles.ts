@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    borderRadius: 100,
   },
   addNewButtonIcon: {
     color: 'white',
@@ -42,6 +43,7 @@ const styles = StyleSheet.create({
     padding: 9,
     margin: 5,
     marginTop: 20,
+    borderRadius: 100,
   },
   datePicker: {
     width: 420,
@@ -51,6 +53,7 @@ const styles = StyleSheet.create({
     padding: 9,
     margin: 5,
     marginTop: 20,
+    borderRadius: 100,
   },
 });
 

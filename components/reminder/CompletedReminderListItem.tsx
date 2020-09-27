@@ -18,6 +18,8 @@ export default function CompletedReminderListItem({item}: any) {
     },
     listItemText: {
       fontSize: 18,
+      textDecorationLine: 'line-through',
+      textDecorationStyle: 'solid',
     },
     listReminderDateView: {
       flexDirection: 'column',
