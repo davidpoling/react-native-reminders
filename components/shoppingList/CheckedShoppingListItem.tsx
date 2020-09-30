@@ -2,17 +2,8 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function ShoppingListScreenItem({
-  item,
-  checkShoppingListItem,
-  onEditPressed,
-}: any) {
-  const [iconName, setIconName] = useState<string>('circle-thin');
-
-  function iconPressed() {
-    setIconName('circle');
-    checkShoppingListItem(item);
-  }
+export default function CheckedShoppingListItem({item}: any) {
+  const [iconName, setIconName] = useState<string>('circle');
 
   const styles = StyleSheet.create({
     listItem: {
@@ -23,11 +14,12 @@ export default function ShoppingListScreenItem({
     },
     listItemView: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
     },
     listItemText: {
       fontSize: 18,
+      textDecorationLine: 'line-through',
+      textDecorationStyle: 'solid',
     },
     listReminderDateView: {
       flexDirection: 'column',
@@ -48,20 +40,10 @@ export default function ShoppingListScreenItem({
           alignContent: 'center',
         }}>
         <View style={styles.listItemView}>
-          <Icon
-            name={iconName}
-            size={25}
-            color={'#3399ff'}
-            onPress={iconPressed}
-          />
+          <Icon name={iconName} size={25} color={'#3399ff'} />
           <View style={styles.listReminderDateView}>
             <Text style={styles.listItemText}>{item.text}</Text>
           </View>
-        </View>
-        <View>
-          <Text style={styles.editText} onPress={() => onEditPressed(item)}>
-            Edit
-          </Text>
         </View>
       </View>
     </TouchableOpacity>

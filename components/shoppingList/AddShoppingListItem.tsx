@@ -1,9 +1,14 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, Modal} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from '../AddItemStyles';
 
-export default function AddShoppingListItem({addShoppingListItem}: any) {
+export default function AddShoppingListItem({
+  addShoppingListItem,
+  shoppingListItemToEdit,
+  setShoppingListItemToEdit,
+  editShoppingListItem,
+}: any) {
   const [text, setText] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [addButtonEnabled, setAddButtonEnabled] = useState<boolean>(false);
@@ -24,6 +29,26 @@ export default function AddShoppingListItem({addShoppingListItem}: any) {
     setAddButtonEnabled(false);
   }
 
+  function onEditPress() {
+    editShoppingListItem(shoppingListItemToEdit.id, text);
+    clear();
+  }
+
+  function clear() {
+    setText('');
+    setModalVisible(false);
+    setAddButtonEnabled(false);
+    setShoppingListItemToEdit({});
+  }
+
+  useEffect(() => {
+    if (shoppingListItemToEdit && shoppingListItemToEdit.id) {
+      setText(shoppingListItemToEdit.text);
+      setModalVisible(true);
+      setAddButtonEnabled(true);
+    }
+  }, [shoppingListItemToEdit]);
+
   return (
     <View>
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
@@ -43,9 +68,17 @@ export default function AddShoppingListItem({addShoppingListItem}: any) {
             style={
               addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled
             }
-            onPress={onAddPress}
+            onPress={() =>
+              shoppingListItemToEdit && shoppingListItemToEdit.id
+                ? onEditPress()
+                : onAddPress()
+            }
             disabled={!addButtonEnabled}>
-            <Text style={styles.modalButtonText}>Add</Text>
+            <Text style={styles.modalButtonText}>
+              {shoppingListItemToEdit && shoppingListItemToEdit.id
+                ? 'Edit'
+                : 'Add'}
+            </Text>
           </TouchableOpacity>
         </View>
       </Modal>
