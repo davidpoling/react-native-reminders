@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, FlatList, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
 import RemindersContext from '../context/RemindersContext';
@@ -10,31 +10,16 @@ import styles from './ScreenStyles';
 import ReminderListItem from '../components/reminder/ReminderListItem';
 import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
+import {ScrollView} from 'react-native-gesture-handler';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [reminderToEdit, setReminderToEdit] = useState<Reminder>(null);
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
+  const [renderedReminders, setRenderedReminders] = useState<any>([]);
+  const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
 
   const remindersContext = useContext<any>(RemindersContext);
-
-  useEffect(() => {
-    if (reminders) {
-      remindersContext.updateReminders(reminders);
-    }
-  }, [reminders]);
-
-  useEffect(() => {
-    remindersService
-      .getReminders()
-      .then(reminders => {
-        setReminders(reminders.filter(r => !r.complete));
-        setCompletedReminders(reminders.filter(r => r.complete));
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
 
   async function addReminder(text: string, dateTime: Date) {
     try {
@@ -94,31 +79,81 @@ export default function RemindersScreen({navigation}: any) {
     return dayMonthString + ' ' + time;
   }
 
+  function renderReminders() {
+    let renderedItems: any = [];
+
+    reminders.forEach(item => {
+      renderedItems.push(<ReminderListItem key={item.id} item={item} completeReminder={completeReminder} onEditPressed={onEditPressed} />);
+    });
+
+    setRenderedReminders(renderedItems);
+  }
+
+  function renderCompletedReminders() {
+    let renderedItems: any = [];
+
+    completedReminders.forEach(item => {
+      renderedItems.push(<CompletedReminderListItem key={item.id} item={item} />);
+    });
+
+    setRenderedCompletedReminders(renderedItems);
+  }
+
+  // TODO: This is OBE now, but I'm keeping it in here for reference using with context.
+  useEffect(() => {
+    if (reminders) {
+      remindersContext.updateReminders(reminders);
+    }
+  }, [reminders]);
+
+  useEffect(() => {
+    remindersService
+      .getReminders()
+      .then(reminders => {
+        setReminders(reminders.filter(r => !r.complete));
+        setCompletedReminders(reminders.filter(r => r.complete));
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (reminders.length > 0) {
+      renderReminders();
+    }
+  }, [reminders]);
+
+  useEffect(() => {
+    if (completedReminders.length > 0) {
+      renderCompletedReminders();
+    }
+  }, [completedReminders]);
+
   return (
     <View style={styles.container}>
       <Header title="Reminders" />
       <AddReminder addReminder={addReminder} reminderToEdit={reminderToEdit} setReminderToEdit={setReminderToEdit} editReminder={editReminder} />
       {reminders.length > 0 || completedReminders.length > 0 ? (
         <>
-          {reminders.length > 0 && (
-            <FlatList
-              data={reminders}
-              renderItem={({item}) => <ReminderListItem item={item} completeReminder={completeReminder} onEditPressed={onEditPressed} />}
-            />
-          )}
-
-          {completedReminders.length > 0 && (
+          <ScrollView>
             <>
-              <View style={styles.dividerContainer}>
-                <Text style={styles.dividerCompleteText}>Complete</Text>
-                <View style={styles.divider} />
-              </View>
-              <TouchableOpacity style={styles.completeButton} onPress={() => deleteReminders(completedReminders)}>
-                <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
-              </TouchableOpacity>
-              <FlatList data={completedReminders} renderItem={({item}) => <CompletedReminderListItem item={item} />} />
+              {reminders.length > 0 && <>{renderedReminders}</>}
+
+              {completedReminders.length > 0 && (
+                <>
+                  <View style={styles.dividerContainer}>
+                    <Text style={styles.dividerCompleteText}>Complete</Text>
+                    <View style={styles.divider} />
+                  </View>
+                  <TouchableOpacity style={styles.completeButton} onPress={() => deleteReminders(completedReminders)}>
+                    <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
+                  </TouchableOpacity>
+                  <>{renderedCompletedReminders}</>
+                </>
+              )}
             </>
-          )}
+          </ScrollView>
         </>
       ) : (
         <View style={styles.noItemsContainer}>

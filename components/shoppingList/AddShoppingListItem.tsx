@@ -47,7 +47,7 @@ export default function AddShoppingListItem({addShoppingListItem, shoppingListIt
   return (
     <View>
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
-        <TextInput placeholder="Add New Shopping List Item" style={styles.input} onChangeText={onChange} value={text} />
+        <TextInput placeholder="Add New Shopping List Item" style={styles.input} onChangeText={onChange} value={text} autoFocus />
         <View style={styles.buttonView}>
           <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
             <Text style={styles.modalButtonText}>Cancel</Text>
@@ -62,7 +62,7 @@ export default function AddShoppingListItem({addShoppingListItem, shoppingListIt
       </Modal>
       <TouchableOpacity style={styles.addNewButton} onPress={onAddNewPress}>
         <Icon name="plus" size={20} style={styles.addNewButtonIcon} />
-        <Text style={styles.addNewButtonText}>Add New Shopping List Item</Text>
+        <Text style={styles.addNewButtonText}>Add New Item</Text>
       </TouchableOpacity>
     </View>
   );

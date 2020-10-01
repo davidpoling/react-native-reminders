@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {View, FlatList, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ShoppingListItem from '../beans/ShoppingListItem';
 import Header from '../components/Header';
@@ -13,18 +14,8 @@ export default function ShoppingListScreen({navigation}: any) {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [shoppingListItemToEdit, setShoppingListItemToEdit] = useState<ShoppingListItem>(null);
   const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<ShoppingListItem[]>([]);
-
-  useEffect(() => {
-    shoppingListService
-      .getShoppingList()
-      .then(shoppingList => {
-        setShoppingList(shoppingList.filter(s => !s.checked));
-        setCheckedShoppingListItems(shoppingList.filter(s => s.checked));
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
+  const [renderedShoppingList, setRenderedShoppingList] = useState<any>([]);
+  const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<any>([]);
 
   async function addShoppingListItem(text: string) {
     try {
@@ -76,6 +67,50 @@ export default function ShoppingListScreen({navigation}: any) {
     setShoppingListItemToEdit(shoppingListItem);
   }
 
+  function renderShoppingListItems() {
+    let renderedItems: any = [];
+
+    shoppingList.forEach(item => {
+      renderedItems.push(<ShoppingListScreenItem key={item.id} item={item} checkShoppingListItem={checkShoppingListItem} onEditPressed={onEditPressed} />);
+    });
+
+    setRenderedShoppingList(renderedItems);
+  }
+
+  function renderCheckedShoppingListItems() {
+    let renderedItems: any = [];
+
+    checkedShoppingListItems.forEach(item => {
+      renderedItems.push(<CheckedShoppingListItem key={item.id} item={item} />);
+    });
+
+    setRenderedCheckedShoppingListItems(renderedItems);
+  }
+
+  useEffect(() => {
+    shoppingListService
+      .getShoppingList()
+      .then(shoppingList => {
+        setShoppingList(shoppingList.filter(s => !s.checked));
+        setCheckedShoppingListItems(shoppingList.filter(s => s.checked));
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (shoppingList.length > 0) {
+      renderShoppingListItems();
+    }
+  }, [shoppingList]);
+
+  useEffect(() => {
+    if (checkedShoppingListItems.length > 0) {
+      renderCheckedShoppingListItems();
+    }
+  }, [checkedShoppingListItems]);
+
   return (
     <View style={styles.container}>
       <Header title="Shopping List" />
@@ -87,25 +122,24 @@ export default function ShoppingListScreen({navigation}: any) {
       />
       {shoppingList.length > 0 || checkedShoppingListItems.length > 0 ? (
         <>
-          {shoppingList.length > 0 && (
-            <FlatList
-              data={shoppingList}
-              renderItem={({item}) => <ShoppingListScreenItem item={item} checkShoppingListItem={checkShoppingListItem} onEditPressed={onEditPressed} />}
-            />
-          )}
-
-          {checkedShoppingListItems.length > 0 && (
+          <ScrollView>
             <>
-              <View style={styles.dividerContainer}>
-                <Text style={styles.dividerCompleteText}>Checked</Text>
-                <View style={styles.divider} />
-              </View>
-              <TouchableOpacity style={styles.completeButton} onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
-                <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
-              </TouchableOpacity>
-              <FlatList data={checkedShoppingListItems} renderItem={({item}) => <CheckedShoppingListItem item={item} />} />
+              {shoppingList.length > 0 && <>{renderedShoppingList}</>}
+
+              {checkedShoppingListItems.length > 0 && (
+                <>
+                  <View style={styles.dividerContainer}>
+                    <Text style={styles.dividerCompleteText}>Checked</Text>
+                    <View style={styles.divider} />
+                  </View>
+                  <TouchableOpacity style={styles.completeButton} onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
+                    <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
+                  </TouchableOpacity>
+                  <>{renderedCheckedShoppingListItems}</>
+                </>
+              )}
             </>
-          )}
+          </ScrollView>
         </>
       ) : (
         <View style={styles.noItemsContainer}>
