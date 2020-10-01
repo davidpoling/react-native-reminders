@@ -109,39 +109,12 @@ export default function RemindersScreen({navigation}: any) {
 
           {completedReminders.length > 0 && (
             <>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 5,
-                  marginTop: 5,
-                }}>
-                <Text style={{color: '#828282', marginLeft: 10}}>Complete</Text>
-                <View
-                  style={{
-                    borderWidth: 0.75,
-                    borderColor: '#D9E0E3',
-                    margin: 5,
-                    width: '80%',
-                    height: 0,
-                  }}
-                />
+              <View style={styles.dividerContainer}>
+                <Text style={styles.dividerCompleteText}>Complete</Text>
+                <View style={styles.divider} />
               </View>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: '#3399ff',
-                  padding: 5,
-                  margin: 5,
-                  marginBottom: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  alignSelf: 'flex-end',
-                  width: '20%',
-                  borderRadius: 100,
-                }}
-                onPress={() => deleteReminders(completedReminders)}>
-                <Icon name="ios-trash-outline" size={20} style={{color: 'white'}} />
+              <TouchableOpacity style={styles.completeButton} onPress={() => deleteReminders(completedReminders)}>
+                <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
               </TouchableOpacity>
               <FlatList data={completedReminders} renderItem={({item}) => <CompletedReminderListItem item={item} />} />
             </>

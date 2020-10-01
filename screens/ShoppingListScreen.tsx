@@ -96,39 +96,12 @@ export default function ShoppingListScreen({navigation}: any) {
 
           {checkedShoppingListItems.length > 0 && (
             <>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 5,
-                  marginTop: 5,
-                }}>
-                <Text style={{color: '#828282', marginLeft: 10}}>Checked</Text>
-                <View
-                  style={{
-                    borderWidth: 0.75,
-                    borderColor: '#D9E0E3',
-                    margin: 5,
-                    width: '80%',
-                    height: 0,
-                  }}
-                />
+              <View style={styles.dividerContainer}>
+                <Text style={styles.dividerCompleteText}>Checked</Text>
+                <View style={styles.divider} />
               </View>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: '#3399ff',
-                  padding: 5,
-                  margin: 5,
-                  marginBottom: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  alignSelf: 'flex-end',
-                  width: '20%',
-                  borderRadius: 100,
-                }}
-                onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
-                <Icon name="ios-trash-outline" size={20} style={{color: 'white'}} />
+              <TouchableOpacity style={styles.completeButton} onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
+                <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
               </TouchableOpacity>
               <FlatList data={checkedShoppingListItems} renderItem={({item}) => <CheckedShoppingListItem item={item} />} />
             </>

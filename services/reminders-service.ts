@@ -4,20 +4,44 @@ import Reminder from '../beans/Reminder';
 import {REMINDER_URL} from './rest-constants';
 
 export default class RemindersService {
-  getReminders(): Promise<Reminder[]> {
-    return axios.get(REMINDER_URL).then(this.processReminder);
+  /**
+   * Get a list of all reminders.
+   *
+   * @returns A list of all reminders.
+   */
+  async getReminders(): Promise<Reminder[]> {
+    const response = await axios.get(REMINDER_URL);
+    return this.processReminder(response);
   }
 
+  /**
+   * Add a new Reminder.
+   *
+   * @param reminder
+   * @returns The newly added Reminder.
+   */
   async addReminder(reminder: Reminder): Promise<Reminder> {
     const response = await axios.post(REMINDER_URL, reminder);
     return response.data;
   }
 
+  /**
+   * Update a Reminder.
+   *
+   * @param reminder
+   * @returns The newly updated Reminder.
+   */
   async updateReminder(reminder: Reminder): Promise<Reminder> {
     const response = await axios.put(REMINDER_URL, reminder);
     return response.data;
   }
 
+  /**
+   * Delete a Reminder, provided the ID.
+   *
+   * @param reminderId
+   * @returns The deleted Reminder.
+   */
   async deleteReminder(reminderId: string): Promise<Reminder> {
     const response = await axios.delete(REMINDER_URL + '/' + reminderId);
     return response.data;
