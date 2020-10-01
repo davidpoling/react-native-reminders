@@ -38,9 +38,7 @@ export default function RemindersScreen({navigation}: any) {
 
   async function addReminder(text: string, dateTime: Date) {
     try {
-      const newReminder = await remindersService.addReminder(
-        new Reminder(text, dateTime),
-      );
+      const newReminder = await remindersService.addReminder(new Reminder(text, dateTime));
       setReminders(prevReminders => {
         return [newReminder, ...prevReminders];
       });
@@ -52,13 +50,9 @@ export default function RemindersScreen({navigation}: any) {
   async function completeReminder(reminderToComplete: Reminder) {
     try {
       reminderToComplete.complete = !reminderToComplete.complete;
-      const updatedReminder: Reminder = await remindersService.updateReminder(
-        reminderToComplete,
-      );
+      const updatedReminder: Reminder = await remindersService.updateReminder(reminderToComplete);
       setReminders(prevReminders => {
-        return prevReminders.filter(
-          reminder => reminder.id !== updatedReminder.id,
-        );
+        return prevReminders.filter(reminder => reminder.id !== updatedReminder.id);
       });
       setCompletedReminders(prevReminders => {
         return [updatedReminder, ...prevReminders];
@@ -74,15 +68,9 @@ export default function RemindersScreen({navigation}: any) {
       reminderToUpdate.text = text;
       reminderToUpdate.dateTime = dateTime;
       reminderToUpdate.dateTimeString = generateDateTimeString(dateTime);
-      const updatedReminder: Reminder = await remindersService.updateReminder(
-        reminderToUpdate,
-      );
+      const updatedReminder: Reminder = await remindersService.updateReminder(reminderToUpdate);
       let prevReminders: Reminder[] = reminders.slice();
-      prevReminders.splice(
-        prevReminders.indexOf(reminderToUpdate),
-        1,
-        updatedReminder,
-      );
+      prevReminders.splice(prevReminders.indexOf(reminderToUpdate), 1, updatedReminder);
       setReminders(prevReminders);
     } catch (error) {
       console.log(error);
@@ -101,12 +89,7 @@ export default function RemindersScreen({navigation}: any) {
   }
 
   function generateDateTimeString(dateTime: Date): string {
-    const dayMonthString = dateTime
-      .toString()
-      .substring(
-        0,
-        dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1,
-      );
+    const dayMonthString = dateTime.toString().substring(0, dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1);
     const time = moment(dateTime).format('LT');
     return dayMonthString + ' ' + time;
   }
@@ -114,24 +97,13 @@ export default function RemindersScreen({navigation}: any) {
   return (
     <View style={styles.container}>
       <Header title="Reminders" />
-      <AddReminder
-        addReminder={addReminder}
-        reminderToEdit={reminderToEdit}
-        setReminderToEdit={setReminderToEdit}
-        editReminder={editReminder}
-      />
+      <AddReminder addReminder={addReminder} reminderToEdit={reminderToEdit} setReminderToEdit={setReminderToEdit} editReminder={editReminder} />
       {reminders.length > 0 || completedReminders.length > 0 ? (
         <>
           {reminders.length > 0 && (
             <FlatList
               data={reminders}
-              renderItem={({item}) => (
-                <ReminderListItem
-                  item={item}
-                  completeReminder={completeReminder}
-                  onEditPressed={onEditPressed}
-                />
-              )}
+              renderItem={({item}) => <ReminderListItem item={item} completeReminder={completeReminder} onEditPressed={onEditPressed} />}
             />
           )}
 
@@ -169,18 +141,9 @@ export default function RemindersScreen({navigation}: any) {
                   borderRadius: 100,
                 }}
                 onPress={() => deleteReminders(completedReminders)}>
-                <Icon
-                  name="ios-trash-outline"
-                  size={20}
-                  style={{color: 'white'}}
-                />
+                <Icon name="ios-trash-outline" size={20} style={{color: 'white'}} />
               </TouchableOpacity>
-              <FlatList
-                data={completedReminders}
-                renderItem={({item}) => (
-                  <CompletedReminderListItem item={item} />
-                )}
-              />
+              <FlatList data={completedReminders} renderItem={({item}) => <CompletedReminderListItem item={item} />} />
             </>
           )}
         </>

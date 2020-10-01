@@ -2,11 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function ReminderListItem({
-  item,
-  completeReminder,
-  onEditPressed,
-}: any) {
+export default function ReminderListItem({item, completeReminder, onEditPressed}: any) {
   const [iconName, setIconName] = useState<string>('circle-thin');
 
   function iconPressed() {
@@ -47,12 +43,7 @@ export default function ReminderListItem({
           alignContent: 'center',
         }}>
         <View style={styles.listItemView}>
-          <Icon
-            name={iconName}
-            size={25}
-            color={'#3399ff'}
-            onPress={iconPressed}
-          />
+          <Icon name={iconName} size={25} color={'#3399ff'} onPress={iconPressed} />
           <View style={styles.listReminderDateView}>
             <Text style={styles.listItemText}>{item.text}</Text>
             <Text style={styles.listItemText}>{item.dateTimeString}</Text>

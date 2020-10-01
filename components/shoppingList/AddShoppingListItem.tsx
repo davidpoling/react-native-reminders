@@ -3,12 +3,7 @@ import {View, Text, TextInput, TouchableOpacity, Modal} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from '../AddItemStyles';
 
-export default function AddShoppingListItem({
-  addShoppingListItem,
-  shoppingListItemToEdit,
-  setShoppingListItemToEdit,
-  editShoppingListItem,
-}: any) {
+export default function AddShoppingListItem({addShoppingListItem, shoppingListItemToEdit, setShoppingListItemToEdit, editShoppingListItem}: any) {
   const [text, setText] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [addButtonEnabled, setAddButtonEnabled] = useState<boolean>(false);
@@ -52,33 +47,16 @@ export default function AddShoppingListItem({
   return (
     <View>
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
-        <TextInput
-          placeholder="Add New Shopping List Item"
-          style={styles.input}
-          onChangeText={onChange}
-          value={text}
-        />
+        <TextInput placeholder="Add New Shopping List Item" style={styles.input} onChangeText={onChange} value={text} />
         <View style={styles.buttonView}>
-          <TouchableOpacity
-            style={styles.modalButton}
-            onPress={() => setModalVisible(false)}>
+          <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
             <Text style={styles.modalButtonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={
-              addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled
-            }
-            onPress={() =>
-              shoppingListItemToEdit && shoppingListItemToEdit.id
-                ? onEditPress()
-                : onAddPress()
-            }
+            style={addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled}
+            onPress={() => (shoppingListItemToEdit && shoppingListItemToEdit.id ? onEditPress() : onAddPress())}
             disabled={!addButtonEnabled}>
-            <Text style={styles.modalButtonText}>
-              {shoppingListItemToEdit && shoppingListItemToEdit.id
-                ? 'Edit'
-                : 'Add'}
-            </Text>
+            <Text style={styles.modalButtonText}>{shoppingListItemToEdit && shoppingListItemToEdit.id ? 'Edit' : 'Add'}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

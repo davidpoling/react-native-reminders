@@ -11,12 +11,8 @@ import styles from './ScreenStyles';
 
 export default function ShoppingListScreen({navigation}: any) {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
-  const [shoppingListItemToEdit, setShoppingListItemToEdit] = useState<
-    ShoppingListItem
-  >(null);
-  const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<
-    ShoppingListItem[]
-  >([]);
+  const [shoppingListItemToEdit, setShoppingListItemToEdit] = useState<ShoppingListItem>(null);
+  const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<ShoppingListItem[]>([]);
 
   useEffect(() => {
     shoppingListService
@@ -32,9 +28,7 @@ export default function ShoppingListScreen({navigation}: any) {
 
   async function addShoppingListItem(text: string) {
     try {
-      const newShoppingListItem = await shoppingListService.addShoppingListItem(
-        new ShoppingListItem(text),
-      );
+      const newShoppingListItem = await shoppingListService.addShoppingListItem(new ShoppingListItem(text));
       setShoppingList(prevShoppingList => {
         return [newShoppingListItem, ...prevShoppingList];
       });
@@ -43,18 +37,12 @@ export default function ShoppingListScreen({navigation}: any) {
     }
   }
 
-  async function checkShoppingListItem(
-    shoppingListItemToCheck: ShoppingListItem,
-  ) {
+  async function checkShoppingListItem(shoppingListItemToCheck: ShoppingListItem) {
     try {
       shoppingListItemToCheck.checked = !shoppingListItemToCheck.checked;
-      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(
-        shoppingListItemToCheck,
-      );
+      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
       setShoppingList(prevShoppingList => {
-        return prevShoppingList.filter(
-          s => s.id !== updatedShoppingListItem.id,
-        );
+        return prevShoppingList.filter(s => s.id !== updatedShoppingListItem.id);
       });
       setCheckedShoppingListItems(prevShoppingList => {
         return [updatedShoppingListItem, ...prevShoppingList];
@@ -66,28 +54,18 @@ export default function ShoppingListScreen({navigation}: any) {
 
   async function editShoppingListItem(id: string, text: string) {
     try {
-      let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(
-        s => s.id === id,
-      );
+      let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
       shoppingListItemToUpdate.text = text;
-      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(
-        shoppingListItemToUpdate,
-      );
+      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
       let prevShoppingList: ShoppingListItem[] = shoppingList.slice();
-      prevShoppingList.splice(
-        prevShoppingList.indexOf(shoppingListItemToUpdate),
-        1,
-        updatedShoppingListItem,
-      );
+      prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToUpdate), 1, updatedShoppingListItem);
       setShoppingList(prevShoppingList);
     } catch (error) {
       console.log(error);
     }
   }
 
-  async function deleteShoppingListItems(
-    shoppingListItems: ShoppingListItem[],
-  ) {
+  async function deleteShoppingListItems(shoppingListItems: ShoppingListItem[]) {
     for (let shoppingListItem of shoppingListItems) {
       await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
     }
@@ -112,13 +90,7 @@ export default function ShoppingListScreen({navigation}: any) {
           {shoppingList.length > 0 && (
             <FlatList
               data={shoppingList}
-              renderItem={({item}) => (
-                <ShoppingListScreenItem
-                  item={item}
-                  checkShoppingListItem={checkShoppingListItem}
-                  onEditPressed={onEditPressed}
-                />
-              )}
+              renderItem={({item}) => <ShoppingListScreenItem item={item} checkShoppingListItem={checkShoppingListItem} onEditPressed={onEditPressed} />}
             />
           )}
 
@@ -155,19 +127,10 @@ export default function ShoppingListScreen({navigation}: any) {
                   width: '20%',
                   borderRadius: 100,
                 }}
-                onPress={() =>
-                  deleteShoppingListItems(checkedShoppingListItems)
-                }>
-                <Icon
-                  name="ios-trash-outline"
-                  size={20}
-                  style={{color: 'white'}}
-                />
+                onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
+                <Icon name="ios-trash-outline" size={20} style={{color: 'white'}} />
               </TouchableOpacity>
-              <FlatList
-                data={checkedShoppingListItems}
-                renderItem={({item}) => <CheckedShoppingListItem item={item} />}
-              />
+              <FlatList data={checkedShoppingListItems} renderItem={({item}) => <CheckedShoppingListItem item={item} />} />
             </>
           )}
         </>

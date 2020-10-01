@@ -4,12 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 import styles from '../AddItemStyles';
 
-export default function AddReminder({
-  addReminder,
-  reminderToEdit,
-  setReminderToEdit,
-  editReminder,
-}: any) {
+export default function AddReminder({addReminder, reminderToEdit, setReminderToEdit, editReminder}: any) {
   const [text, setText] = useState<string>('');
   const [dateTime, setDateTime] = useState<Date>(new Date());
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -57,33 +52,17 @@ export default function AddReminder({
   return (
     <View>
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
-        <TextInput
-          placeholder="Add New Reminder"
-          style={styles.input}
-          onChangeText={onChange}
-          value={text}
-          autoFocus
-        />
-        <DatePicker
-          style={styles.datePicker}
-          date={dateTime}
-          onDateChange={onDateChange}
-        />
+        <TextInput placeholder="Add New Reminder" style={styles.input} onChangeText={onChange} value={text} autoFocus />
+        <DatePicker style={styles.datePicker} date={dateTime} onDateChange={onDateChange} />
         <View style={styles.buttonView}>
           <TouchableOpacity style={styles.modalButton} onPress={clear}>
             <Text style={styles.modalButtonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={
-              addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled
-            }
-            onPress={() =>
-              reminderToEdit && reminderToEdit.id ? onEditPress() : onAddPress()
-            }
+            style={addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled}
+            onPress={() => (reminderToEdit && reminderToEdit.id ? onEditPress() : onAddPress())}
             disabled={!addButtonEnabled}>
-            <Text style={styles.modalButtonText}>
-              {reminderToEdit && reminderToEdit.id ? 'Edit' : 'Add'}
-            </Text>
+            <Text style={styles.modalButtonText}>{reminderToEdit && reminderToEdit.id ? 'Edit' : 'Add'}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
