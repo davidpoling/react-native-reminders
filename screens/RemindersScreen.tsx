@@ -11,6 +11,8 @@ import ReminderListItem from '../components/reminder/ReminderListItem';
 import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
 import {ScrollView} from 'react-native-gesture-handler';
+import * as signalR from '@microsoft/signalr';
+import {BASE_URL} from '../services/rest-constants';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -18,12 +20,13 @@ export default function RemindersScreen({navigation}: any) {
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
   const [renderedReminders, setRenderedReminders] = useState<any>([]);
   const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
+  const [connectionId, setConnectionId] = useState<string>('');
 
   const remindersContext = useContext<any>(RemindersContext);
 
   async function addReminder(text: string, dateTime: Date) {
     try {
-      const newReminder = await remindersService.addReminder(new Reminder(text, dateTime));
+      const newReminder = await remindersService.addReminder(new Reminder(text, dateTime), connectionId);
       setReminders(prevReminders => {
         return [newReminder, ...prevReminders];
       });
@@ -74,7 +77,9 @@ export default function RemindersScreen({navigation}: any) {
   }
 
   function generateDateTimeString(dateTime: Date): string {
-    const dayMonthString = dateTime.toString().substring(0, dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1);
+    const dayMonthString = dateTime
+      .toString()
+      .substring(0, dateTime.toString().indexOf(dateTime.getFullYear().toString()) - 1);
     const time = moment(dateTime).format('LT');
     return dayMonthString + ' ' + time;
   }
@@ -83,7 +88,14 @@ export default function RemindersScreen({navigation}: any) {
     let renderedItems: any = [];
 
     reminders.forEach(item => {
-      renderedItems.push(<ReminderListItem key={item.id} item={item} completeReminder={completeReminder} onEditPressed={onEditPressed} />);
+      renderedItems.push(
+        <ReminderListItem
+          key={item.id}
+          item={item}
+          completeReminder={completeReminder}
+          onEditPressed={onEditPressed}
+        />,
+      );
     });
 
     setRenderedReminders(renderedItems);
@@ -116,6 +128,20 @@ export default function RemindersScreen({navigation}: any) {
       .catch(error => {
         console.log(error);
       });
+
+    const connection = new signalR.HubConnectionBuilder().withUrl(BASE_URL + '/application-hub').build();
+
+    connection.on('ReminderCreated', (text: string) => {
+      console.log(text);
+    });
+
+    connection.start().then(() => {
+      setConnectionId(connection.connectionId);
+    });
+
+    return () => {
+      connection.stop();
+    };
   }, []);
 
   useEffect(() => {
@@ -133,7 +159,12 @@ export default function RemindersScreen({navigation}: any) {
   return (
     <View style={styles.container}>
       <Header title="Reminders" />
-      <AddReminder addReminder={addReminder} reminderToEdit={reminderToEdit} setReminderToEdit={setReminderToEdit} editReminder={editReminder} />
+      <AddReminder
+        addReminder={addReminder}
+        reminderToEdit={reminderToEdit}
+        setReminderToEdit={setReminderToEdit}
+        editReminder={editReminder}
+      />
       {reminders.length > 0 || completedReminders.length > 0 ? (
         <>
           <ScrollView>

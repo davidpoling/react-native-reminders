@@ -20,8 +20,8 @@ export default class RemindersService {
    * @param reminder
    * @returns The newly added Reminder.
    */
-  async addReminder(reminder: Reminder): Promise<Reminder> {
-    const response = await axios.post(REMINDER_URL, reminder);
+  async addReminder(reminder: Reminder, connectionId: string): Promise<Reminder> {
+    const response = await axios.post(REMINDER_URL + '?connectionId=' + connectionId, reminder);
     return response.data;
   }
 
