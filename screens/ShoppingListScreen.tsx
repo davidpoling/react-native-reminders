@@ -7,7 +7,12 @@ import Header from '../components/Header';
 import AddShoppingListItem from '../components/shoppingList/AddShoppingListItem';
 import CheckedShoppingListItem from '../components/shoppingList/CheckedShoppingListItem';
 import ShoppingListScreenItem from '../components/shoppingList/ShoppingListScreenItem';
-import {shoppingListService} from '../config/serverConfig';
+import {connection, connectionId, shoppingListService} from '../config/appConfig';
+import {
+  SHOPPING_LIST_ITEMS_DELETED,
+  SHOPPING_LIST_ITEM_CREATED,
+  SHOPPING_LIST_ITEM_UPDATED,
+} from '../services/message-constants';
 import styles from './ScreenStyles';
 
 export default function ShoppingListScreen({navigation}: any) {
@@ -19,7 +24,10 @@ export default function ShoppingListScreen({navigation}: any) {
 
   async function addShoppingListItem(text: string) {
     try {
-      const newShoppingListItem = await shoppingListService.addShoppingListItem(new ShoppingListItem(text));
+      const newShoppingListItem = await shoppingListService.addShoppingListItem(
+        new ShoppingListItem(text),
+        connectionId,
+      );
       setShoppingList(prevShoppingList => {
         return [newShoppingListItem, ...prevShoppingList];
       });
@@ -30,8 +38,11 @@ export default function ShoppingListScreen({navigation}: any) {
 
   async function checkShoppingListItem(shoppingListItemToCheck: ShoppingListItem) {
     try {
-      shoppingListItemToCheck.checked = !shoppingListItemToCheck.checked;
-      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
+      shoppingListItemToCheck.complete = !shoppingListItemToCheck.complete;
+      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(
+        shoppingListItemToCheck,
+        connectionId,
+      );
       setShoppingList(prevShoppingList => {
         return prevShoppingList.filter(s => s.id !== updatedShoppingListItem.id);
       });
@@ -47,7 +58,10 @@ export default function ShoppingListScreen({navigation}: any) {
     try {
       let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
       shoppingListItemToUpdate.text = text;
-      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
+      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(
+        shoppingListItemToUpdate,
+        connectionId,
+      );
       let prevShoppingList: ShoppingListItem[] = shoppingList.slice();
       prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToUpdate), 1, updatedShoppingListItem);
       setShoppingList(prevShoppingList);
@@ -58,7 +72,7 @@ export default function ShoppingListScreen({navigation}: any) {
 
   async function deleteShoppingListItems(shoppingListItems: ShoppingListItem[]) {
     for (let shoppingListItem of shoppingListItems) {
-      await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
+      await shoppingListService.deleteShoppingListItem(shoppingListItem.id, connectionId);
     }
     setCheckedShoppingListItems([]);
   }
@@ -71,7 +85,14 @@ export default function ShoppingListScreen({navigation}: any) {
     let renderedItems: any = [];
 
     shoppingList.forEach(item => {
-      renderedItems.push(<ShoppingListScreenItem key={item.id} item={item} checkShoppingListItem={checkShoppingListItem} onEditPressed={onEditPressed} />);
+      renderedItems.push(
+        <ShoppingListScreenItem
+          key={item.id}
+          item={item}
+          checkShoppingListItem={checkShoppingListItem}
+          onEditPressed={onEditPressed}
+        />,
+      );
     });
 
     setRenderedShoppingList(renderedItems);
@@ -91,12 +112,40 @@ export default function ShoppingListScreen({navigation}: any) {
     shoppingListService
       .getShoppingList()
       .then(shoppingList => {
-        setShoppingList(shoppingList.filter(s => !s.checked));
-        setCheckedShoppingListItems(shoppingList.filter(s => s.checked));
+        setShoppingList(shoppingList.filter(s => !s.complete));
+        setCheckedShoppingListItems(shoppingList.filter(s => s.complete));
       })
       .catch(error => {
         console.log(error);
       });
+
+    connection.on(SHOPPING_LIST_ITEM_CREATED, (text: string) => {
+      const newShoppingListItem: ShoppingListItem = JSON.parse(text);
+      setShoppingList(prevShoppingList => {
+        return [newShoppingListItem, ...prevShoppingList];
+      });
+    });
+
+    connection.on(SHOPPING_LIST_ITEM_UPDATED, (text: string) => {
+      const updatedShoppingListItem: ShoppingListItem = JSON.parse(text);
+      if (updatedShoppingListItem.complete) {
+        setShoppingList(prevShoppingList => {
+          return prevShoppingList.filter(s => s.id !== updatedShoppingListItem.id);
+        });
+        setCheckedShoppingListItems(prevShoppingList => {
+          return [updatedShoppingListItem, ...prevShoppingList];
+        });
+      } else {
+        let prevShoppingList: ShoppingListItem[] = shoppingList.slice();
+        let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === updatedShoppingListItem.id);
+        prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToUpdate), 1, updatedShoppingListItem);
+        setShoppingList(prevShoppingList);
+      }
+    });
+
+    connection.on(SHOPPING_LIST_ITEMS_DELETED, (text: string) => {
+      // TODO: Finish
+    });
   }, []);
 
   useEffect(() => {
@@ -132,7 +181,9 @@ export default function ShoppingListScreen({navigation}: any) {
                     <Text style={styles.dividerCompleteText}>Checked</Text>
                     <View style={styles.divider} />
                   </View>
-                  <TouchableOpacity style={styles.completeButton} onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
+                  <TouchableOpacity
+                    style={styles.completeButton}
+                    onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
                     <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
                   </TouchableOpacity>
                   <>{renderedCheckedShoppingListItems}</>

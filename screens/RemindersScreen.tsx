@@ -1,9 +1,8 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
-import RemindersContext from '../context/RemindersContext';
-import {remindersService} from '../config/serverConfig';
+import {connection, connectionId, remindersService} from '../config/appConfig';
 import Reminder from '../beans/Reminder';
 import Header from '../components/Header';
 import styles from './ScreenStyles';
@@ -11,8 +10,7 @@ import ReminderListItem from '../components/reminder/ReminderListItem';
 import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
 import {ScrollView} from 'react-native-gesture-handler';
-import * as signalR from '@microsoft/signalr';
-import {BASE_URL} from '../services/rest-constants';
+import {REMINDERS_DELETED, REMINDER_CREATED, REMINDER_UPDATED} from '../services/message-constants';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -20,9 +18,6 @@ export default function RemindersScreen({navigation}: any) {
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
   const [renderedReminders, setRenderedReminders] = useState<any>([]);
   const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
-  const [connectionId, setConnectionId] = useState<string>('');
-
-  const remindersContext = useContext<any>(RemindersContext);
 
   async function addReminder(text: string, dateTime: Date) {
     try {
@@ -38,7 +33,7 @@ export default function RemindersScreen({navigation}: any) {
   async function completeReminder(reminderToComplete: Reminder) {
     try {
       reminderToComplete.complete = !reminderToComplete.complete;
-      const updatedReminder: Reminder = await remindersService.updateReminder(reminderToComplete);
+      const updatedReminder: Reminder = await remindersService.updateReminder(reminderToComplete, connectionId);
       setReminders(prevReminders => {
         return prevReminders.filter(reminder => reminder.id !== updatedReminder.id);
       });
@@ -56,7 +51,7 @@ export default function RemindersScreen({navigation}: any) {
       reminderToUpdate.text = text;
       reminderToUpdate.dateTime = dateTime;
       reminderToUpdate.dateTimeString = generateDateTimeString(dateTime);
-      const updatedReminder: Reminder = await remindersService.updateReminder(reminderToUpdate);
+      const updatedReminder: Reminder = await remindersService.updateReminder(reminderToUpdate, connectionId);
       let prevReminders: Reminder[] = reminders.slice();
       prevReminders.splice(prevReminders.indexOf(reminderToUpdate), 1, updatedReminder);
       setReminders(prevReminders);
@@ -67,7 +62,7 @@ export default function RemindersScreen({navigation}: any) {
 
   async function deleteReminders(remindersToDelete: Reminder[]) {
     for (let reminder of remindersToDelete) {
-      await remindersService.deleteReminder(reminder.id);
+      await remindersService.deleteReminder(reminder.id, connectionId);
     }
     setCompletedReminders([]);
   }
@@ -111,13 +106,6 @@ export default function RemindersScreen({navigation}: any) {
     setRenderedCompletedReminders(renderedItems);
   }
 
-  // TODO: This is OBE now, but I'm keeping it in here for reference using with context.
-  useEffect(() => {
-    if (reminders) {
-      remindersContext.updateReminders(reminders);
-    }
-  }, [reminders]);
-
   useEffect(() => {
     remindersService
       .getReminders()
@@ -129,19 +117,33 @@ export default function RemindersScreen({navigation}: any) {
         console.log(error);
       });
 
-    const connection = new signalR.HubConnectionBuilder().withUrl(BASE_URL + '/application-hub').build();
-
-    connection.on('ReminderCreated', (text: string) => {
-      console.log(text);
+    connection.on(REMINDER_CREATED, (text: string) => {
+      const newReminder: Reminder = JSON.parse(text);
+      setReminders(prevReminders => {
+        return [newReminder, ...prevReminders];
+      });
     });
 
-    connection.start().then(() => {
-      setConnectionId(connection.connectionId);
+    connection.on(REMINDER_UPDATED, (text: string) => {
+      const updatedReminder: Reminder = JSON.parse(text);
+      if (updatedReminder.complete) {
+        setReminders(prevReminders => {
+          return prevReminders.filter(reminder => reminder.id !== updatedReminder.id);
+        });
+        setCompletedReminders(prevReminders => {
+          return [updatedReminder, ...prevReminders];
+        });
+      } else {
+        let prevReminders: Reminder[] = reminders.slice();
+        let reminderToUpdate: Reminder = reminders.find(r => r.id === updatedReminder.id);
+        prevReminders.splice(prevReminders.indexOf(reminderToUpdate), 1, updatedReminder);
+        setReminders(prevReminders);
+      }
     });
 
-    return () => {
-      connection.stop();
-    };
+    connection.on(REMINDERS_DELETED, (text: string) => {
+      // TODO: Finish
+    });
   }, []);
 
   useEffect(() => {

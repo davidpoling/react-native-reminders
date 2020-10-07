@@ -1,7 +1,7 @@
 export default class ShoppingListItem {
   id: string;
   text: string;
-  checked: boolean;
+  complete: boolean;
 
   constructor(text: string) {
     this.text = text;

@@ -31,8 +31,8 @@ export default class RemindersService {
    * @param reminder
    * @returns The newly updated Reminder.
    */
-  async updateReminder(reminder: Reminder): Promise<Reminder> {
-    const response = await axios.put(REMINDER_URL, reminder);
+  async updateReminder(reminder: Reminder, connectionId: string): Promise<Reminder> {
+    const response = await axios.put(REMINDER_URL + '?connectionId=' + connectionId, reminder);
     return response.data;
   }
 
@@ -42,8 +42,8 @@ export default class RemindersService {
    * @param reminderId
    * @returns The deleted Reminder.
    */
-  async deleteReminder(reminderId: string): Promise<Reminder> {
-    const response = await axios.delete(REMINDER_URL + '/' + reminderId);
+  async deleteReminder(reminderId: string, connectionId: string): Promise<Reminder> {
+    const response = await axios.delete(REMINDER_URL + '/' + reminderId + '?connectionId=' + connectionId);
     return response.data;
   }
 

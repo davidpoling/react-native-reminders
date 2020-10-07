@@ -6,3 +6,6 @@ export const REMINDER_URL: string = `${BASE_URL}/api/Reminder`;
 
 // Shopping List
 export const SHOPPING_LIST_URL: string = `${BASE_URL}/api/ShoppingList`;
+
+// Application Hub
+export const APPLICATION_HUB: string = `${BASE_URL}/application-hub`;
