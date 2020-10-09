@@ -144,7 +144,19 @@ export default function ShoppingListScreen({navigation}: any) {
     });
 
     connection.on(SHOPPING_LIST_ITEMS_DELETED, (text: string) => {
-      // TODO: Finish
+      const deletedShoppingListItem: ShoppingListItem = JSON.parse(text);
+      let shoppingListItemToDelete: ShoppingListItem = shoppingList.find(r => r.id === deletedShoppingListItem.id);
+      let prevShoppingList: ShoppingListItem[] = [];
+      if (shoppingList.indexOf(shoppingListItemToDelete) > 0) {
+        prevShoppingList = shoppingList.slice();
+        prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToDelete), 1, shoppingListItemToDelete);
+        setShoppingList(prevShoppingList);
+      }
+      if (checkedShoppingListItems.indexOf(shoppingListItemToDelete) > 0) {
+        prevShoppingList = checkedShoppingListItems.slice();
+        prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToDelete), 1, shoppingListItemToDelete);
+        setCheckedShoppingListItems(prevShoppingList);
+      }
     });
   }, []);
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
@@ -10,7 +10,8 @@ import ReminderListItem from '../components/reminder/ReminderListItem';
 import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
 import {ScrollView} from 'react-native-gesture-handler';
-import {REMINDERS_DELETED, REMINDER_CREATED, REMINDER_UPDATED} from '../services/message-constants';
+import {REMINDER_DELETED, REMINDER_CREATED, REMINDER_UPDATED} from '../services/message-constants';
+import {HubConnection} from '@microsoft/signalr';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -18,6 +19,8 @@ export default function RemindersScreen({navigation}: any) {
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
   const [renderedReminders, setRenderedReminders] = useState<any>([]);
   const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
+  let remindersRef = useRef<Reminder[]>([]);
+  let completedRemindersRef = useRef<Reminder[]>([]);
 
   async function addReminder(text: string, dateTime: Date) {
     try {
@@ -106,17 +109,7 @@ export default function RemindersScreen({navigation}: any) {
     setRenderedCompletedReminders(renderedItems);
   }
 
-  useEffect(() => {
-    remindersService
-      .getReminders()
-      .then(reminders => {
-        setReminders(reminders.filter(r => !r.complete));
-        setCompletedReminders(reminders.filter(r => r.complete));
-      })
-      .catch(error => {
-        console.log(error);
-      });
-
+  function setupConnectionListeners() {
     connection.on(REMINDER_CREATED, (text: string) => {
       const newReminder: Reminder = JSON.parse(text);
       setReminders(prevReminders => {
@@ -125,36 +118,71 @@ export default function RemindersScreen({navigation}: any) {
     });
 
     connection.on(REMINDER_UPDATED, (text: string) => {
+      // TODO: reminders is empty???
       const updatedReminder: Reminder = JSON.parse(text);
-      if (updatedReminder.complete) {
-        setReminders(prevReminders => {
-          return prevReminders.filter(reminder => reminder.id !== updatedReminder.id);
-        });
+      let reminderToUpdate: Reminder = remindersRef.current.find(r => r.id === updatedReminder.id);
+      let copy: Reminder[] = remindersRef.current.slice();
+
+      if (!reminderToUpdate.complete && !updatedReminder.complete) {
+        copy.splice(copy.indexOf(reminderToUpdate), 1, updatedReminder);
+        setReminders(copy);
+      } else if (!reminderToUpdate.complete && updatedReminder.complete) {
+        copy.splice(copy.indexOf(reminderToUpdate), 1);
+        setReminders(copy);
         setCompletedReminders(prevReminders => {
           return [updatedReminder, ...prevReminders];
         });
       } else {
-        let prevReminders: Reminder[] = reminders.slice();
-        let reminderToUpdate: Reminder = reminders.find(r => r.id === updatedReminder.id);
-        prevReminders.splice(prevReminders.indexOf(reminderToUpdate), 1, updatedReminder);
-        setReminders(prevReminders);
+        copy = completedRemindersRef.current.slice();
+        reminderToUpdate = completedRemindersRef.current.find(r => r.id === updatedReminder.id);
+        copy.splice(copy.indexOf(reminderToUpdate), 1, updatedReminder);
+        setCompletedReminders(copy);
       }
     });
 
-    connection.on(REMINDERS_DELETED, (text: string) => {
-      // TODO: Finish
+    connection.on(REMINDER_DELETED, (text: string) => {
+      // TODO: reminders is empty???
+      const deletedReminder: Reminder = JSON.parse(text);
+      let reminderToDelete: Reminder = reminders.find(r => r.id === deletedReminder.id);
+      let prevReminders: Reminder[] = [];
+
+      if (reminders.indexOf(reminderToDelete) > 0) {
+        prevReminders = reminders.slice();
+        prevReminders.splice(prevReminders.indexOf(reminderToDelete), 1, reminderToDelete);
+        setReminders(prevReminders);
+      }
+      if (completedReminders.indexOf(reminderToDelete) > 0) {
+        prevReminders = completedReminders.slice();
+        prevReminders.splice(prevReminders.indexOf(reminderToDelete), 1, reminderToDelete);
+        setCompletedReminders(prevReminders);
+      }
     });
+  }
+
+  useEffect(() => {
+    remindersService
+      .getReminders()
+      .then(reminders => {
+        setReminders(reminders.filter(r => !r.complete));
+        setCompletedReminders(reminders.filter(r => r.complete));
+        setupConnectionListeners();
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }, []);
 
   useEffect(() => {
     if (reminders.length > 0) {
       renderReminders();
+      remindersRef.current = reminders.slice();
     }
   }, [reminders]);
 
   useEffect(() => {
     if (completedReminders.length > 0) {
       renderCompletedReminders();
+      completedRemindersRef.current = completedReminders.slice();
     }
   }, [completedReminders]);
 
