@@ -11,7 +11,6 @@ import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
 import {ScrollView} from 'react-native-gesture-handler';
 import {REMINDER_DELETED, REMINDER_CREATED, REMINDER_UPDATED} from '../services/message-constants';
-import {HubConnection} from '@microsoft/signalr';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -19,6 +18,13 @@ export default function RemindersScreen({navigation}: any) {
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
   const [renderedReminders, setRenderedReminders] = useState<any>([]);
   const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
+
+  /**
+   * These refs act as instance variables,
+   * and are used because the connection listeners don't have updated state.
+   *
+   * They get updated every time the reminders and completedReminders get updated.
+   */
   let remindersRef = useRef<Reminder[]>([]);
   let completedRemindersRef = useRef<Reminder[]>([]);
 
@@ -118,8 +124,9 @@ export default function RemindersScreen({navigation}: any) {
     });
 
     connection.on(REMINDER_UPDATED, (text: string) => {
-      // TODO: reminders is empty???
       const updatedReminder: Reminder = JSON.parse(text);
+
+      // Use the refs instead, as they will have updated state.
       let reminderToUpdate: Reminder = remindersRef.current.find(r => r.id === updatedReminder.id);
       let copy: Reminder[] = remindersRef.current.slice();
 
@@ -132,30 +139,18 @@ export default function RemindersScreen({navigation}: any) {
         setCompletedReminders(prevReminders => {
           return [updatedReminder, ...prevReminders];
         });
-      } else {
-        copy = completedRemindersRef.current.slice();
-        reminderToUpdate = completedRemindersRef.current.find(r => r.id === updatedReminder.id);
-        copy.splice(copy.indexOf(reminderToUpdate), 1, updatedReminder);
-        setCompletedReminders(copy);
       }
     });
 
     connection.on(REMINDER_DELETED, (text: string) => {
-      // TODO: reminders is empty???
       const deletedReminder: Reminder = JSON.parse(text);
-      let reminderToDelete: Reminder = reminders.find(r => r.id === deletedReminder.id);
-      let prevReminders: Reminder[] = [];
 
-      if (reminders.indexOf(reminderToDelete) > 0) {
-        prevReminders = reminders.slice();
-        prevReminders.splice(prevReminders.indexOf(reminderToDelete), 1, reminderToDelete);
-        setReminders(prevReminders);
-      }
-      if (completedReminders.indexOf(reminderToDelete) > 0) {
-        prevReminders = completedReminders.slice();
-        prevReminders.splice(prevReminders.indexOf(reminderToDelete), 1, reminderToDelete);
-        setCompletedReminders(prevReminders);
-      }
+      // Use the refs instead, as they will have updated state.
+      let reminderToDelete: Reminder = completedRemindersRef.current.find(r => r.id === deletedReminder.id);
+      let copy: Reminder[] = completedRemindersRef.current.slice();
+
+      copy.splice(copy.indexOf(reminderToDelete), 1);
+      setCompletedReminders(copy);
     });
   }
 
