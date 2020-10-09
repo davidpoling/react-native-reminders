@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -21,6 +21,15 @@ export default function ShoppingListScreen({navigation}: any) {
   const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<ShoppingListItem[]>([]);
   const [renderedShoppingList, setRenderedShoppingList] = useState<any>([]);
   const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<any>([]);
+
+  /**
+   * These refs act as instance variables,
+   * and are used because the connection listeners don't have updated state.
+   *
+   * They get updated every time the shoppingList and checkedShoppingListItems get updated.
+   */
+  let shoppingListRef = useRef<ShoppingListItem[]>([]);
+  let checkedShoppingListItemsRef = useRef<ShoppingListItem[]>([]);
 
   async function addShoppingListItem(text: string) {
     try {
@@ -108,17 +117,7 @@ export default function ShoppingListScreen({navigation}: any) {
     setRenderedCheckedShoppingListItems(renderedItems);
   }
 
-  useEffect(() => {
-    shoppingListService
-      .getShoppingList()
-      .then(shoppingList => {
-        setShoppingList(shoppingList.filter(s => !s.complete));
-        setCheckedShoppingListItems(shoppingList.filter(s => s.complete));
-      })
-      .catch(error => {
-        console.log(error);
-      });
-
+  function setupConnectionListeners() {
     connection.on(SHOPPING_LIST_ITEM_CREATED, (text: string) => {
       const newShoppingListItem: ShoppingListItem = JSON.parse(text);
       setShoppingList(prevShoppingList => {
@@ -128,47 +127,63 @@ export default function ShoppingListScreen({navigation}: any) {
 
     connection.on(SHOPPING_LIST_ITEM_UPDATED, (text: string) => {
       const updatedShoppingListItem: ShoppingListItem = JSON.parse(text);
-      if (updatedShoppingListItem.complete) {
-        setShoppingList(prevShoppingList => {
-          return prevShoppingList.filter(s => s.id !== updatedShoppingListItem.id);
-        });
+
+      // Use the refs instead, as they will have updated state.
+      let shoppingListItemToUpdate: ShoppingListItem = shoppingListRef.current.find(
+        r => r.id === updatedShoppingListItem.id,
+      );
+      let copy: ShoppingListItem[] = shoppingListRef.current.slice();
+
+      if (!shoppingListItemToUpdate.complete && !updatedShoppingListItem.complete) {
+        copy.splice(copy.indexOf(shoppingListItemToUpdate), 1, updatedShoppingListItem);
+        setShoppingList(copy);
+      } else if (!shoppingListItemToUpdate.complete && updatedShoppingListItem.complete) {
+        copy.splice(copy.indexOf(shoppingListItemToUpdate), 1);
+        setShoppingList(copy);
         setCheckedShoppingListItems(prevShoppingList => {
           return [updatedShoppingListItem, ...prevShoppingList];
         });
-      } else {
-        let prevShoppingList: ShoppingListItem[] = shoppingList.slice();
-        let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === updatedShoppingListItem.id);
-        prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToUpdate), 1, updatedShoppingListItem);
-        setShoppingList(prevShoppingList);
       }
     });
 
     connection.on(SHOPPING_LIST_ITEMS_DELETED, (text: string) => {
       const deletedShoppingListItem: ShoppingListItem = JSON.parse(text);
-      let shoppingListItemToDelete: ShoppingListItem = shoppingList.find(r => r.id === deletedShoppingListItem.id);
-      let prevShoppingList: ShoppingListItem[] = [];
-      if (shoppingList.indexOf(shoppingListItemToDelete) > 0) {
-        prevShoppingList = shoppingList.slice();
-        prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToDelete), 1, shoppingListItemToDelete);
-        setShoppingList(prevShoppingList);
-      }
-      if (checkedShoppingListItems.indexOf(shoppingListItemToDelete) > 0) {
-        prevShoppingList = checkedShoppingListItems.slice();
-        prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToDelete), 1, shoppingListItemToDelete);
-        setCheckedShoppingListItems(prevShoppingList);
-      }
+
+      // Use the refs instead, as they will have updated state.
+      let shoppingListItemToDelete: ShoppingListItem = checkedShoppingListItemsRef.current.find(
+        r => r.id === deletedShoppingListItem.id,
+      );
+      let copy: ShoppingListItem[] = checkedShoppingListItemsRef.current.slice();
+
+      copy.splice(copy.indexOf(shoppingListItemToDelete), 1);
+      setCheckedShoppingListItems(copy);
     });
+  }
+
+  useEffect(() => {
+    shoppingListService
+      .getShoppingList()
+      .then(shoppingList => {
+        setShoppingList(shoppingList.filter(s => !s.complete));
+        setCheckedShoppingListItems(shoppingList.filter(s => s.complete));
+        setupConnectionListeners();
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }, []);
 
   useEffect(() => {
     if (shoppingList.length > 0) {
       renderShoppingListItems();
+      shoppingListRef.current = shoppingList.slice();
     }
   }, [shoppingList]);
 
   useEffect(() => {
     if (checkedShoppingListItems.length > 0) {
       renderCheckedShoppingListItems();
+      checkedShoppingListItemsRef.current = checkedShoppingListItems.slice();
     }
   }, [checkedShoppingListItems]);
 
