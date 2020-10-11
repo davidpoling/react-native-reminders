@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "android-local": "ENVFILE=env.local react-native run-android --variant devdebug", 
+    "android-local": "ENVFILE=env react-native run-android --variant devdebug", 
     "ios": "react-native run-ios",
-    "ios-local": "ENVFILE=env.local react-native run-ios --variant devdebug",
+    "ios-local": "ENVFILE=env react-native run-ios --variant devdebug",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
