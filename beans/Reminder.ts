@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 export default class Reminder {
-  id: string;
+  id: number;
   text: string;
   dateTime: Date;
   dateTimeString: string;

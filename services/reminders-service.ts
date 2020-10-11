@@ -40,9 +40,9 @@ export default class RemindersService {
    * Delete a Reminder, provided the ID.
    *
    * @param reminderId
-   * @returns The deleted Reminder.
+   * @returns The deleted Reminder's ID.
    */
-  async deleteReminder(reminderId: string, connectionId: string): Promise<Reminder> {
+  async deleteReminder(reminderId: number, connectionId: string): Promise<number> {
     const response = await axios.delete(REMINDER_URL + '/' + reminderId + '?connectionId=' + connectionId);
     return response.data;
   }

@@ -39,9 +39,9 @@ export default class ShoppingListService {
    * Delete a ShoppingListItem, provided the ID.
    *
    * @param shoppingListItemId
-   * @returns The deleted ShoppingListItem.
+   * @returns The deleted ShoppingListItem's ID.
    */
-  async deleteShoppingListItem(shoppingListItemId: string, connectionId: string): Promise<ShoppingListItem> {
+  async deleteShoppingListItem(shoppingListItemId: number, connectionId: string): Promise<number> {
     const response = await axios.delete(SHOPPING_LIST_URL + '/' + shoppingListItemId + '?connectionId=' + connectionId);
     return response.data;
   }

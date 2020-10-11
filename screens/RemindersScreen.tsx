@@ -54,7 +54,7 @@ export default function RemindersScreen({navigation}: any) {
     }
   }
 
-  async function editReminder(id: string, text: string, dateTime: Date) {
+  async function editReminder(id: number, text: string, dateTime: Date) {
     try {
       let reminderToUpdate: Reminder = reminders.find(r => r.id === id);
       reminderToUpdate.text = text;
@@ -143,10 +143,10 @@ export default function RemindersScreen({navigation}: any) {
     });
 
     connection.on(REMINDER_DELETED, (text: string) => {
-      const deletedReminder: Reminder = JSON.parse(text);
+      const deletedReminderId: number = JSON.parse(text);
 
       // Use the refs instead, as they will have updated state.
-      let reminderToDelete: Reminder = completedRemindersRef.current.find(r => r.id === deletedReminder.id);
+      let reminderToDelete: Reminder = completedRemindersRef.current.find(r => r.id === deletedReminderId);
       let copy: Reminder[] = completedRemindersRef.current.slice();
 
       copy.splice(copy.indexOf(reminderToDelete), 1);

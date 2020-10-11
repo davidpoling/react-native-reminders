@@ -1,5 +1,5 @@
 export default class Recipe {
-  id: string;
+  id: number;
   title: string;
   instructions: string;
   ingredients: string[];

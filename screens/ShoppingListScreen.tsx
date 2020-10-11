@@ -63,7 +63,7 @@ export default function ShoppingListScreen({navigation}: any) {
     }
   }
 
-  async function editShoppingListItem(id: string, text: string) {
+  async function editShoppingListItem(id: number, text: string) {
     try {
       let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
       shoppingListItemToUpdate.text = text;
@@ -147,11 +147,11 @@ export default function ShoppingListScreen({navigation}: any) {
     });
 
     connection.on(SHOPPING_LIST_ITEMS_DELETED, (text: string) => {
-      const deletedShoppingListItem: ShoppingListItem = JSON.parse(text);
+      const deletedShoppingListId: number = JSON.parse(text);
 
       // Use the refs instead, as they will have updated state.
       let shoppingListItemToDelete: ShoppingListItem = checkedShoppingListItemsRef.current.find(
-        r => r.id === deletedShoppingListItem.id,
+        r => r.id === deletedShoppingListId,
       );
       let copy: ShoppingListItem[] = checkedShoppingListItemsRef.current.slice();
 

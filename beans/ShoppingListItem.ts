@@ -1,5 +1,5 @@
 export default class ShoppingListItem {
-  id: string;
+  id: number;
   text: string;
   complete: boolean;
 
