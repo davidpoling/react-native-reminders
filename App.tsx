@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {NavigationContainer} from '@react-navigation/native';
@@ -22,12 +22,15 @@ export default function App() {
   });
 
   useEffect(() => {
-    connection.start().then(() => {
-      setConnectionId(connection.connectionId);
-    });
+    if (!connection.connectionId) {
+      connection.start().then(() => {
+        setConnectionId(connection.connectionId);
+      });
+    }
 
     return () => {
       connection.stop();
+      setConnectionId('');
     };
   }, []);
 

@@ -7,7 +7,7 @@ const remindersService = new RemindersService();
 
 const shoppingListService = new ShoppingListService();
 
-const connection = new signalR.HubConnectionBuilder().withUrl(APPLICATION_HUB).build();
+const connection = new signalR.HubConnectionBuilder().withUrl(APPLICATION_HUB).withAutomaticReconnect().build();
 
 let connectionId: string = '';
 
