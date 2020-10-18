@@ -3,9 +3,10 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   listItem: {
     padding: 15,
-    backgroundColor: '#f8f8f8',
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+  },
+  listItemDark: {
+    padding: 15,
+    backgroundColor: 'black',
   },
   listItemContainer: {
     justifyContent: 'space-between',
@@ -21,10 +22,20 @@ const styles = StyleSheet.create({
   listItemText: {
     fontSize: 18,
   },
+  listItemTextDark: {
+    fontSize: 18,
+    color: 'white'
+  },
   listItemStrikeThroughText: {
     fontSize: 18,
     textDecorationLine: 'line-through',
     textDecorationStyle: 'solid',
+  },
+  listItemStrikeThroughTextDark: {
+    fontSize: 18,
+    textDecorationLine: 'line-through',
+    textDecorationStyle: 'solid',
+    color: 'white'
   },
   listItemTextView: {
     flexDirection: 'column',
@@ -32,6 +43,10 @@ const styles = StyleSheet.create({
   },
   editText: {
     alignSelf: 'flex-end',
+  },
+  editTextDark: {
+    alignSelf: 'flex-end',
+    color: 'white'
   },
 });
 

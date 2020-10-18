@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import { isDarkMode } from '../config/appConfig';
 
 const styles = StyleSheet.create({
   container: {
@@ -48,6 +49,11 @@ const styles = StyleSheet.create({
   },
   noItemsText: {
     fontSize: 18,
+    color: 'black'
+  },
+  noItemsTextDark: {
+    fontSize: 18,
+    color: 'white'
   },
   noItemsContainer: {
     flex: 1,

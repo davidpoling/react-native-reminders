@@ -1,19 +1,21 @@
 import React, {useEffect} from 'react';
 import 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {NavigationContainer} from '@react-navigation/native';
+import {DarkTheme, DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {View, StyleSheet} from 'react-native';
+import {useDarkMode} from 'react-native-dynamic';
 import RemindersScreen from './screens/RemindersScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
 import RecipesScreen from './screens/RecipesScreen';
-import {connection, setConnectionId} from './config/appConfig';
+import {connection, setConnectionId, setIsDarkMode} from './config/appConfig';
 
 export default function App() {
   const Tab = createBottomTabNavigator();
   const REMINDERS_SCREEN_NAME = 'Reminders';
   const SHOPPING_LIST_SCREEN_NAME = 'Shopping List';
   const RECIPES_SCREEN_NAME = 'Recipes';
+  const isDarkMode = useDarkMode();
 
   const styles = StyleSheet.create({
     container: {
@@ -34,9 +36,22 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    setIsDarkMode(isDarkMode);
+    console.log(isDarkMode);
+  }, [isDarkMode]);
+
+  const NavigationContainerDarkTheme = {
+    ...DarkTheme,
+  };
+
+  const NavigationContainerDefaultTheme = {
+    ...DefaultTheme,
+  };
+
   return (
     <View style={styles.container}>
-      <NavigationContainer>
+      <NavigationContainer theme={isDarkMode ? NavigationContainerDarkTheme : NavigationContainerDefaultTheme}>
         <Tab.Navigator
           screenOptions={({route}: any) => ({
             tabBarIcon: ({focused, color, size}: any) => {

@@ -15,7 +15,7 @@ export default function Header({title}: any) {
     },
     text: {
       color: '#314b7f',
-      fontSize: 23,
+      fontSize: 25,
       fontWeight: 'bold',
     },
   });

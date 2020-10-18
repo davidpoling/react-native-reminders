@@ -15,4 +15,10 @@ const setConnectionId = (id: string) => {
   connectionId = id;
 };
 
-export {remindersService, shoppingListService, connection, connectionId, setConnectionId};
+let isDarkMode: boolean;
+
+const setIsDarkMode = (darkModeEnabled: boolean) => {
+  isDarkMode = darkModeEnabled
+}
+
+export {remindersService, shoppingListService, connection, connectionId, setConnectionId, isDarkMode, setIsDarkMode};

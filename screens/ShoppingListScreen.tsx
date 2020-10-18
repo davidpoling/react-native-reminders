@@ -7,7 +7,7 @@ import Header from '../components/Header';
 import AddShoppingListItem from '../components/shoppingList/AddShoppingListItem';
 import CheckedShoppingListItem from '../components/shoppingList/CheckedShoppingListItem';
 import ShoppingListScreenItem from '../components/shoppingList/ShoppingListScreenItem';
-import {connection, connectionId, shoppingListService} from '../config/appConfig';
+import {connection, connectionId, isDarkMode, shoppingListService} from '../config/appConfig';
 import {
   SHOPPING_LIST_ITEMS_DELETED,
   SHOPPING_LIST_ITEM_CREATED,
@@ -221,7 +221,7 @@ export default function ShoppingListScreen({navigation}: any) {
         </>
       ) : (
         <View style={styles.noItemsContainer}>
-          <Text style={styles.noItemsText}>No Shopping List</Text>
+          <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Shopping List</Text>
         </View>
       )}
     </View>

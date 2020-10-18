@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
-import {connection, connectionId, remindersService} from '../config/appConfig';
+import {connection, connectionId, isDarkMode, remindersService} from '../config/appConfig';
 import Reminder from '../beans/Reminder';
 import Header from '../components/Header';
 import styles from './ScreenStyles';
@@ -213,7 +213,7 @@ export default function RemindersScreen({navigation}: any) {
         </>
       ) : (
         <View style={styles.noItemsContainer}>
-          <Text style={styles.noItemsText}>No Reminders</Text>
+          <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Reminders</Text>
         </View>
       )}
     </View>
