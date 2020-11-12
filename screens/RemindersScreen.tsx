@@ -13,6 +13,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {useDarkMode} from 'react-native-dynamic';
 import useReminders from '../hooks/useReminders';
 import {useQueryCache} from 'react-query';
+import SpecialModal from '../components/modals/SpecialModal';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -23,6 +24,7 @@ export default function RemindersScreen({navigation}: any) {
   const isDarkMode = useDarkMode();
   const remindersQuery = useReminders();
   const queryCache = useQueryCache();
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   async function addReminder(text: string, dateTime: Date) {
     try {
@@ -35,6 +37,11 @@ export default function RemindersScreen({navigation}: any) {
 
   async function completeReminder(reminderToComplete: Reminder) {
     try {
+      // TODO: Remove the return later.
+      if (reminderToComplete.text === 'Test') {
+        setModalVisible(true);
+        return;
+      }
       reminderToComplete.complete = !reminderToComplete.complete;
       await remindersService.updateReminder(reminderToComplete);
       queryCache.invalidateQueries('reminders');
@@ -122,40 +129,43 @@ export default function RemindersScreen({navigation}: any) {
   }, [completedReminders]);
 
   return (
-    <View style={styles.container}>
-      <Header title="Reminders" />
-      <AddReminder
-        addReminder={addReminder}
-        reminderToEdit={reminderToEdit}
-        setReminderToEdit={setReminderToEdit}
-        editReminder={editReminder}
-      />
-      {reminders.length > 0 || completedReminders.length > 0 ? (
-        <>
-          <ScrollView>
-            <>
-              {reminders.length > 0 && <>{renderedReminders}</>}
+    <>
+      <View style={styles.container}>
+        <Header title="Reminders" />
+        <AddReminder
+          addReminder={addReminder}
+          reminderToEdit={reminderToEdit}
+          setReminderToEdit={setReminderToEdit}
+          editReminder={editReminder}
+        />
+        {reminders.length > 0 || completedReminders.length > 0 ? (
+          <>
+            <ScrollView>
+              <>
+                {reminders.length > 0 && <>{renderedReminders}</>}
 
-              {completedReminders.length > 0 && (
-                <>
-                  <View style={styles.dividerContainer}>
-                    <Text style={styles.dividerCompleteText}>Complete</Text>
-                    <View style={styles.divider} />
-                  </View>
-                  <TouchableOpacity style={styles.completeButton} onPress={() => deleteReminders(completedReminders)}>
-                    <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
-                  </TouchableOpacity>
-                  <>{renderedCompletedReminders}</>
-                </>
-              )}
-            </>
-          </ScrollView>
-        </>
-      ) : (
-        <View style={styles.noItemsContainer}>
-          <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Reminders</Text>
-        </View>
-      )}
-    </View>
+                {completedReminders.length > 0 && (
+                  <>
+                    <View style={styles.dividerContainer}>
+                      <Text style={styles.dividerCompleteText}>Complete</Text>
+                      <View style={styles.divider} />
+                    </View>
+                    <TouchableOpacity style={styles.completeButton} onPress={() => deleteReminders(completedReminders)}>
+                      <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
+                    </TouchableOpacity>
+                    <>{renderedCompletedReminders}</>
+                  </>
+                )}
+              </>
+            </ScrollView>
+          </>
+        ) : (
+          <View style={styles.noItemsContainer}>
+            <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Reminders</Text>
+          </View>
+        )}
+      </View>
+      <SpecialModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
+    </>
   );
 }
