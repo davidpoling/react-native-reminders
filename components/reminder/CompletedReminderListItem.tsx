@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
+import { useDarkMode } from 'react-native-dynamic';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { isDarkMode } from '../../config/appConfig';
 import styles from '../ListItemStyles';
 
 export default function CompletedReminderListItem({item}: any) {
   const [iconName, setIconName] = useState<string>('circle');
+  const isDarkMode = useDarkMode();
 
   return (
     <TouchableOpacity style={isDarkMode ? styles.listItemDark : styles.listItem}>

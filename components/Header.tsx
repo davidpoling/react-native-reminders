@@ -9,9 +9,9 @@ export default function Header({title}: any) {
       padding: 15,
     },
     iosheader: {
-      height: 90,
+      height: 115,
       padding: 15,
-      paddingTop: 45,
+      paddingTop: 65,
     },
     text: {
       color: '#314b7f',
