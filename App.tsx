@@ -8,7 +8,6 @@ import {useDarkMode} from 'react-native-dynamic';
 import RemindersScreen from './screens/RemindersScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
 import RecipesScreen from './screens/RecipesScreen';
-import {connection, setConnectionId} from './config/appConfig';
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -22,19 +21,6 @@ export default function App() {
       flex: 1,
     },
   });
-
-  useEffect(() => {
-    if (!connection.connectionId) {
-      connection.start().then(() => {
-        setConnectionId(connection.connectionId);
-      });
-    }
-
-    return () => {
-      connection.stop();
-      setConnectionId('');
-    };
-  }, []);
 
   const NavigationContainerDarkTheme = {
     ...DarkTheme,
