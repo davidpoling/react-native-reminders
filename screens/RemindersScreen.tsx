@@ -12,6 +12,7 @@ import CompletedReminderListItem from '../components/reminder/CompletedReminderL
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDarkMode} from 'react-native-dynamic';
 import useReminders from '../hooks/useReminders';
+import {useQueryCache} from 'react-query';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -21,10 +22,12 @@ export default function RemindersScreen({navigation}: any) {
   const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
   const isDarkMode = useDarkMode();
   const remindersQuery = useReminders();
+  const queryCache = useQueryCache();
 
   async function addReminder(text: string, dateTime: Date) {
     try {
       await remindersService.addReminder(new Reminder(text, dateTime));
+      queryCache.invalidateQueries('reminders');
     } catch (error) {
       console.log(error);
     }
@@ -34,6 +37,7 @@ export default function RemindersScreen({navigation}: any) {
     try {
       reminderToComplete.complete = !reminderToComplete.complete;
       await remindersService.updateReminder(reminderToComplete);
+      queryCache.invalidateQueries('reminders');
     } catch (error) {
       console.log(error);
     }
@@ -46,6 +50,7 @@ export default function RemindersScreen({navigation}: any) {
       reminderToUpdate.dateTime = dateTime;
       reminderToUpdate.dateTimeString = generateDateTimeString(dateTime);
       await remindersService.updateReminder(reminderToUpdate);
+      queryCache.invalidateQueries('reminders');
     } catch (error) {
       console.log(error);
     }
@@ -55,6 +60,7 @@ export default function RemindersScreen({navigation}: any) {
     for (let reminder of remindersToDelete) {
       await remindersService.deleteReminder(reminder.id);
     }
+    queryCache.invalidateQueries('reminders');
   }
 
   function onEditPressed(reminder: Reminder) {

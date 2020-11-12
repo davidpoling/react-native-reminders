@@ -11,6 +11,7 @@ import ShoppingListScreenItem from '../components/shoppingList/ShoppingListScree
 import {shoppingListService} from '../config/appConfig';
 import styles from './ScreenStyles';
 import useShoppingList from '../hooks/useShoppingList';
+import {useQueryCache} from 'react-query';
 
 export default function ShoppingListScreen({navigation}: any) {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
@@ -20,10 +21,12 @@ export default function ShoppingListScreen({navigation}: any) {
   const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<any>([]);
   const isDarkMode = useDarkMode();
   const shoppingListQuery = useShoppingList();
+  const queryCache = useQueryCache();
 
   async function addShoppingListItem(text: string) {
     try {
       await shoppingListService.addShoppingListItem(new ShoppingListItem(text));
+      queryCache.invalidateQueries('shoppingList');
     } catch (error) {
       console.log(error);
     }
@@ -33,6 +36,7 @@ export default function ShoppingListScreen({navigation}: any) {
     try {
       shoppingListItemToCheck.complete = !shoppingListItemToCheck.complete;
       await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
+      queryCache.invalidateQueries('shoppingList');
     } catch (error) {
       console.log(error);
     }
@@ -43,6 +47,7 @@ export default function ShoppingListScreen({navigation}: any) {
       let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
       shoppingListItemToUpdate.text = text;
       await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
+      queryCache.invalidateQueries('shoppingList');
     } catch (error) {
       console.log(error);
     }
@@ -52,6 +57,7 @@ export default function ShoppingListScreen({navigation}: any) {
     for (let shoppingListItem of shoppingListItems) {
       await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
     }
+    queryCache.invalidateQueries('shoppingList');
   }
 
   function onEditPressed(shoppingListItem: ShoppingListItem) {

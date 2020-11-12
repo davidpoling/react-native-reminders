@@ -4,5 +4,5 @@ import {remindersService} from '../config/appConfig';
 const fetchReminders = () => remindersService.getReminders();
 
 export default function useReminders() {
-  return useQuery('reminders', fetchReminders, {refetchInterval: 1000, cacheTime: 10000});
+  return useQuery('reminders', fetchReminders, {refetchInterval: 10000, cacheTime: 10000});
 }
