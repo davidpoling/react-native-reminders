@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableHighlight} from 'react-native';
 import {useDarkMode} from 'react-native-dynamic';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from '../ListItemStyles';
@@ -14,7 +14,7 @@ export default function ReminderListItem({item, completeReminder, onEditPressed}
   }
 
   return (
-    <TouchableOpacity style={isDarkMode ? styles.listItemDark : styles.listItem}>
+    <TouchableHighlight style={isDarkMode ? styles.listItemDark : styles.listItem}>
       <View
         style={{
           justifyContent: 'space-between',
@@ -35,6 +35,6 @@ export default function ReminderListItem({item, completeReminder, onEditPressed}
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
 }

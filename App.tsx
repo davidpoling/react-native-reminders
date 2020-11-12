@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {DarkTheme, DefaultTheme, NavigationContainer} from '@react-navigation/native';
@@ -8,6 +8,9 @@ import {useDarkMode} from 'react-native-dynamic';
 import RemindersScreen from './screens/RemindersScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
 import RecipesScreen from './screens/RecipesScreen';
+import {QueryCache, ReactQueryCacheProvider} from 'react-query';
+
+const queryCache = new QueryCache();
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -31,32 +34,34 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <NavigationContainer theme={isDarkMode ? NavigationContainerDarkTheme : NavigationContainerDefaultTheme}>
-        <Tab.Navigator
-          screenOptions={({route}: any) => ({
-            tabBarIcon: ({focused, color, size}: any) => {
-              let iconName: string;
+    <ReactQueryCacheProvider queryCache={queryCache}>
+      <View style={styles.container}>
+        <NavigationContainer theme={isDarkMode ? NavigationContainerDarkTheme : NavigationContainerDefaultTheme}>
+          <Tab.Navigator
+            screenOptions={({route}: any) => ({
+              tabBarIcon: ({focused, color, size}: any) => {
+                let iconName: string;
 
-              if (route.name === REMINDERS_SCREEN_NAME) {
-                iconName = focused ? 'ios-checkmark-circle' : 'ios-checkmark-circle-outline';
-              } else if (route.name === SHOPPING_LIST_SCREEN_NAME) {
-                iconName = focused ? 'ios-cart' : 'ios-cart-outline';
-              } else if (route.name === RECIPES_SCREEN_NAME) {
-                iconName = focused ? 'ios-restaurant' : 'ios-restaurant-outline';
-              }
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-          })}
-          tabBarOptions={{
-            activeTintColor: '#3399ff',
-            inactiveTintColor: 'gray',
-          }}>
-          <Tab.Screen name={REMINDERS_SCREEN_NAME} component={RemindersScreen} />
-          <Tab.Screen name={SHOPPING_LIST_SCREEN_NAME} component={ShoppingListScreen} />
-          <Tab.Screen name={RECIPES_SCREEN_NAME} component={RecipesScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </View>
+                if (route.name === REMINDERS_SCREEN_NAME) {
+                  iconName = focused ? 'ios-checkmark-circle' : 'ios-checkmark-circle-outline';
+                } else if (route.name === SHOPPING_LIST_SCREEN_NAME) {
+                  iconName = focused ? 'ios-cart' : 'ios-cart-outline';
+                } else if (route.name === RECIPES_SCREEN_NAME) {
+                  iconName = focused ? 'ios-restaurant' : 'ios-restaurant-outline';
+                }
+                return <Ionicons name={iconName} size={size} color={color} />;
+              },
+            })}
+            tabBarOptions={{
+              activeTintColor: '#3399ff',
+              inactiveTintColor: 'gray',
+            }}>
+            <Tab.Screen name={REMINDERS_SCREEN_NAME} component={RemindersScreen} />
+            <Tab.Screen name={SHOPPING_LIST_SCREEN_NAME} component={ShoppingListScreen} />
+            <Tab.Screen name={RECIPES_SCREEN_NAME} component={RecipesScreen} />
+          </Tab.Navigator>
+        </NavigationContainer>
+      </View>
+    </ReactQueryCacheProvider>
   );
 }

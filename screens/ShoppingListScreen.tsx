@@ -1,6 +1,5 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
 import {useDarkMode} from 'react-native-dynamic';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -11,6 +10,7 @@ import CheckedShoppingListItem from '../components/shoppingList/CheckedShoppingL
 import ShoppingListScreenItem from '../components/shoppingList/ShoppingListScreenItem';
 import {shoppingListService} from '../config/appConfig';
 import styles from './ScreenStyles';
+import useShoppingList from '../hooks/useShoppingList';
 
 export default function ShoppingListScreen({navigation}: any) {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
@@ -19,22 +19,11 @@ export default function ShoppingListScreen({navigation}: any) {
   const [renderedShoppingList, setRenderedShoppingList] = useState<any>([]);
   const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<any>([]);
   const isDarkMode = useDarkMode();
-
-  /**
-   * These refs act as instance variables,
-   * and are used because the connection listeners don't have updated state.
-   *
-   * They get updated every time the shoppingList and checkedShoppingListItems get updated.
-   */
-  let shoppingListRef = useRef<ShoppingListItem[]>([]);
-  let checkedShoppingListItemsRef = useRef<ShoppingListItem[]>([]);
+  const shoppingListQuery = useShoppingList();
 
   async function addShoppingListItem(text: string) {
     try {
-      const newShoppingListItem = await shoppingListService.addShoppingListItem(new ShoppingListItem(text));
-      setShoppingList(prevShoppingList => {
-        return [newShoppingListItem, ...prevShoppingList];
-      });
+      await shoppingListService.addShoppingListItem(new ShoppingListItem(text));
     } catch (error) {
       console.log(error);
     }
@@ -43,15 +32,7 @@ export default function ShoppingListScreen({navigation}: any) {
   async function checkShoppingListItem(shoppingListItemToCheck: ShoppingListItem) {
     try {
       shoppingListItemToCheck.complete = !shoppingListItemToCheck.complete;
-      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(
-        shoppingListItemToCheck,
-      );
-      setShoppingList(prevShoppingList => {
-        return prevShoppingList.filter(s => s.id !== updatedShoppingListItem.id);
-      });
-      setCheckedShoppingListItems(prevShoppingList => {
-        return [updatedShoppingListItem, ...prevShoppingList];
-      });
+      await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
     } catch (error) {
       console.log(error);
     }
@@ -61,12 +42,7 @@ export default function ShoppingListScreen({navigation}: any) {
     try {
       let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
       shoppingListItemToUpdate.text = text;
-      const updatedShoppingListItem: ShoppingListItem = await shoppingListService.updateShoppingListItem(
-        shoppingListItemToUpdate,
-      );
-      let prevShoppingList: ShoppingListItem[] = shoppingList.slice();
-      prevShoppingList.splice(prevShoppingList.indexOf(shoppingListItemToUpdate), 1, updatedShoppingListItem);
-      setShoppingList(prevShoppingList);
+      await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
     } catch (error) {
       console.log(error);
     }
@@ -76,7 +52,6 @@ export default function ShoppingListScreen({navigation}: any) {
     for (let shoppingListItem of shoppingListItems) {
       await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
     }
-    setCheckedShoppingListItems([]);
   }
 
   function onEditPressed(shoppingListItem: ShoppingListItem) {
@@ -110,31 +85,22 @@ export default function ShoppingListScreen({navigation}: any) {
     setRenderedCheckedShoppingListItems(renderedItems);
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      shoppingListService
-        .getShoppingList()
-        .then(shoppingList => {
-          setShoppingList(shoppingList.filter(s => !s.complete));
-          setCheckedShoppingListItems(shoppingList.filter(s => s.complete));
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    }, []),
-  );
+  useEffect(() => {
+    if (shoppingListQuery.isSuccess && shoppingListQuery.data) {
+      setShoppingList(shoppingListQuery.data.filter(s => !s.complete));
+      setCheckedShoppingListItems(shoppingListQuery.data.filter(s => s.complete));
+    }
+  }, [shoppingListQuery]);
 
   useEffect(() => {
     if (shoppingList.length > 0) {
       renderShoppingListItems();
-      shoppingListRef.current = shoppingList.slice();
     }
   }, [shoppingList]);
 
   useEffect(() => {
     if (checkedShoppingListItems.length > 0) {
       renderCheckedShoppingListItems();
-      checkedShoppingListItemsRef.current = checkedShoppingListItems.slice();
     }
   }, [checkedShoppingListItems]);
 
