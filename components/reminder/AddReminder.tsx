@@ -3,12 +3,14 @@ import {View, Text, TextInput, TouchableOpacity, Modal} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 import styles from '../AddItemStyles';
+import {useDarkMode} from 'react-native-dynamic';
 
 export default function AddReminder({addReminder, reminderToEdit, setReminderToEdit, editReminder}: any) {
   const [text, setText] = useState<string>('');
   const [dateTime, setDateTime] = useState<Date>(new Date());
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [addButtonEnabled, setAddButtonEnabled] = useState<boolean>(false);
+  const isDarkMode = useDarkMode();
 
   function onChange(textValue: string) {
     setText(textValue);
@@ -52,18 +54,31 @@ export default function AddReminder({addReminder, reminderToEdit, setReminderToE
   return (
     <View>
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
-        <TextInput placeholder="Add New Reminder" style={styles.input} onChangeText={onChange} value={text} autoFocus />
-        <DatePicker style={styles.datePicker} date={dateTime} onDateChange={onDateChange} />
-        <View style={styles.buttonView}>
-          <TouchableOpacity style={styles.modalButton} onPress={clear}>
-            <Text style={styles.modalButtonText}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled}
-            onPress={() => (reminderToEdit && reminderToEdit.id ? onEditPress() : onAddPress())}
-            disabled={!addButtonEnabled}>
-            <Text style={styles.modalButtonText}>{reminderToEdit && reminderToEdit.id ? 'Edit' : 'Add'}</Text>
-          </TouchableOpacity>
+        <View style={isDarkMode ? styles.modalContainerDark : styles.modalContainer}>
+          <TextInput
+            placeholder="Add New Reminder"
+            style={isDarkMode ? styles.inputDark : styles.input}
+            onChangeText={onChange}
+            value={text}
+            autoFocus
+          />
+          <DatePicker
+            style={styles.datePicker}
+            date={dateTime}
+            onDateChange={onDateChange}
+            textColor={isDarkMode ? 'white' : 'black'}
+          />
+          <View style={styles.buttonView}>
+            <TouchableOpacity style={styles.modalButton} onPress={clear}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled}
+              onPress={() => (reminderToEdit && reminderToEdit.id ? onEditPress() : onAddPress())}
+              disabled={!addButtonEnabled}>
+              <Text style={styles.modalButtonText}>{reminderToEdit && reminderToEdit.id ? 'Edit' : 'Add'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
       <TouchableOpacity style={styles.addNewButton} onPress={onAddNewPress}>

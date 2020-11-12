@@ -1,5 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {useDarkMode} from 'react-native-dynamic';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ShoppingListItem from '../beans/ShoppingListItem';
@@ -7,7 +9,7 @@ import Header from '../components/Header';
 import AddShoppingListItem from '../components/shoppingList/AddShoppingListItem';
 import CheckedShoppingListItem from '../components/shoppingList/CheckedShoppingListItem';
 import ShoppingListScreenItem from '../components/shoppingList/ShoppingListScreenItem';
-import {connection, connectionId, isDarkMode, shoppingListService} from '../config/appConfig';
+import {connection, connectionId, shoppingListService} from '../config/appConfig';
 import {
   SHOPPING_LIST_ITEMS_DELETED,
   SHOPPING_LIST_ITEM_CREATED,
@@ -21,6 +23,7 @@ export default function ShoppingListScreen({navigation}: any) {
   const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<ShoppingListItem[]>([]);
   const [renderedShoppingList, setRenderedShoppingList] = useState<any>([]);
   const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<any>([]);
+  const isDarkMode = useDarkMode();
 
   /**
    * These refs act as instance variables,
@@ -160,18 +163,20 @@ export default function ShoppingListScreen({navigation}: any) {
     });
   }
 
-  useEffect(() => {
-    shoppingListService
-      .getShoppingList()
-      .then(shoppingList => {
-        setShoppingList(shoppingList.filter(s => !s.complete));
-        setCheckedShoppingListItems(shoppingList.filter(s => s.complete));
-        setupConnectionListeners();
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      shoppingListService
+        .getShoppingList()
+        .then(shoppingList => {
+          setShoppingList(shoppingList.filter(s => !s.complete));
+          setCheckedShoppingListItems(shoppingList.filter(s => s.complete));
+          setupConnectionListeners();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }, []),
+  );
 
   useEffect(() => {
     if (shoppingList.length > 0) {

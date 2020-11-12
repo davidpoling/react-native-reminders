@@ -1,8 +1,9 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
-import {connection, connectionId, isDarkMode, remindersService} from '../config/appConfig';
+import {connection, connectionId, remindersService} from '../config/appConfig';
 import Reminder from '../beans/Reminder';
 import Header from '../components/Header';
 import styles from './ScreenStyles';
@@ -11,6 +12,7 @@ import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
 import {ScrollView} from 'react-native-gesture-handler';
 import {REMINDER_DELETED, REMINDER_CREATED, REMINDER_UPDATED} from '../services/message-constants';
+import {useDarkMode} from 'react-native-dynamic';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -18,6 +20,7 @@ export default function RemindersScreen({navigation}: any) {
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
   const [renderedReminders, setRenderedReminders] = useState<any>([]);
   const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
+  const isDarkMode = useDarkMode();
 
   /**
    * These refs act as instance variables,
@@ -154,18 +157,20 @@ export default function RemindersScreen({navigation}: any) {
     });
   }
 
-  useEffect(() => {
-    remindersService
-      .getReminders()
-      .then(reminders => {
-        setReminders(reminders.filter(r => !r.complete));
-        setCompletedReminders(reminders.filter(r => r.complete));
-        setupConnectionListeners();
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      remindersService
+        .getReminders()
+        .then(reminders => {
+          setReminders(reminders.filter(r => !r.complete));
+          setCompletedReminders(reminders.filter(r => r.complete));
+          setupConnectionListeners();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }, []),
+  );
 
   useEffect(() => {
     if (reminders.length > 0) {

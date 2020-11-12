@@ -8,7 +8,7 @@ import {useDarkMode} from 'react-native-dynamic';
 import RemindersScreen from './screens/RemindersScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
 import RecipesScreen from './screens/RecipesScreen';
-import {connection, setConnectionId, setIsDarkMode} from './config/appConfig';
+import {connection, setConnectionId} from './config/appConfig';
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -35,11 +35,6 @@ export default function App() {
       setConnectionId('');
     };
   }, []);
-
-  useEffect(() => {
-    setIsDarkMode(isDarkMode);
-    console.log(isDarkMode);
-  }, [isDarkMode]);
 
   const NavigationContainerDarkTheme = {
     ...DarkTheme,
@@ -68,7 +63,7 @@ export default function App() {
             },
           })}
           tabBarOptions={{
-            activeTintColor: '#314b7f',
+            activeTintColor: '#3399ff',
             inactiveTintColor: 'gray',
           }}>
           <Tab.Screen name={REMINDERS_SCREEN_NAME} component={RemindersScreen} />
