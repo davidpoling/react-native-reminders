@@ -19,8 +19,8 @@ export default class ShoppingListService {
    * @param shoppingListItem
    * @returns The newly added ShoppingListItem.
    */
-  async addShoppingListItem(shoppingListItem: ShoppingListItem, connectionId: string): Promise<ShoppingListItem> {
-    const response = await axios.post(SHOPPING_LIST_URL + '?connectionId=' + connectionId, shoppingListItem);
+  async addShoppingListItem(shoppingListItem: ShoppingListItem): Promise<ShoppingListItem> {
+    const response = await axios.post(SHOPPING_LIST_URL, shoppingListItem);
     return response.data;
   }
 
@@ -30,8 +30,8 @@ export default class ShoppingListService {
    * @param shoppingListItem
    * @returns The newly updated ShoppingListItem.
    */
-  async updateShoppingListItem(shoppingListItem: ShoppingListItem, connectionId: string): Promise<ShoppingListItem> {
-    const reponse = await axios.put(SHOPPING_LIST_URL + '?connectionId=' + connectionId, shoppingListItem);
+  async updateShoppingListItem(shoppingListItem: ShoppingListItem): Promise<ShoppingListItem> {
+    const reponse = await axios.put(SHOPPING_LIST_URL, shoppingListItem);
     return reponse.data;
   }
 
@@ -41,8 +41,8 @@ export default class ShoppingListService {
    * @param shoppingListItemId
    * @returns The deleted ShoppingListItem's ID.
    */
-  async deleteShoppingListItem(shoppingListItemId: number, connectionId: string): Promise<number> {
-    const response = await axios.delete(SHOPPING_LIST_URL + '/' + shoppingListItemId + '?connectionId=' + connectionId);
+  async deleteShoppingListItem(shoppingListItemId: number): Promise<number> {
+    const response = await axios.delete(SHOPPING_LIST_URL + '/' + shoppingListItemId);
     return response.data;
   }
 }
