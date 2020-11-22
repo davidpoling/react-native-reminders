@@ -37,10 +37,9 @@ export default function RemindersScreen({navigation}: any) {
 
   async function completeReminder(reminderToComplete: Reminder) {
     try {
-      // TODO: Remove the return later.
-      if (reminderToComplete.text === 'Test') {
+      // TODO: Figure out what task to use here.
+      if (reminderToComplete.text === 'Have the perfect day') {
         setModalVisible(true);
-        return;
       }
       reminderToComplete.complete = !reminderToComplete.complete;
       await remindersService.updateReminder(reminderToComplete);

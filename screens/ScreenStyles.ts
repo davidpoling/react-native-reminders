@@ -1,5 +1,4 @@
 import {StyleSheet} from 'react-native';
-import { isDarkMode } from '../config/appConfig';
 
 const styles = StyleSheet.create({
   container: {
