@@ -21,10 +21,12 @@ const styles = StyleSheet.create({
   },
   listItemText: {
     fontSize: 18,
+    maxWidth: 200,
   },
   listItemTextDark: {
     fontSize: 18,
-    color: 'white'
+    color: 'white',
+    maxWidth: 200,
   },
   listItemStrikeThroughText: {
     fontSize: 18,
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textDecorationLine: 'line-through',
     textDecorationStyle: 'solid',
-    color: 'white'
+    color: 'white',
   },
   listItemTextView: {
     flexDirection: 'column',
@@ -46,7 +48,7 @@ const styles = StyleSheet.create({
   },
   editTextDark: {
     alignSelf: 'flex-end',
-    color: 'white'
+    color: 'white',
   },
 });
 
