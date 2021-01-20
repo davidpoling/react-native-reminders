@@ -13,6 +13,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {useDarkMode} from 'react-native-dynamic';
 import useReminders from '../hooks/useReminders';
 import {useQueryCache} from 'react-query';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function RemindersScreen({navigation}: any) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -25,42 +26,80 @@ export default function RemindersScreen({navigation}: any) {
   const queryCache = useQueryCache();
 
   async function addReminder(text: string, dateTime: Date) {
+    queryCache.cancelQueries('reminders');
+    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+
     try {
-      await remindersService.addReminder(new Reminder(text, dateTime));
-      queryCache.invalidateQueries('reminders');
+      const newReminder: Reminder = new Reminder(text, dateTime);
+      queryCache.setQueryData('reminders', (old: Reminder[]) => [newReminder, ...old]);
+
+      await remindersService.addReminder(newReminder);
     } catch (error) {
-      console.log(error);
+      queryCache.setQueryData('reminders', oldReminders);
+    } finally {
+      queryCache.invalidateQueries('reminders');
     }
   }
 
   async function completeReminder(reminderToComplete: Reminder) {
+    queryCache.cancelQueries('reminders');
+    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+    let remindersCopy: Reminder[] = [...reminders];
+    let completedRemindersCopy: Reminder[] = [...completedReminders];
+
     try {
+      const index: number = reminders.findIndex(r => r.id === reminderToComplete.id);
       reminderToComplete.complete = !reminderToComplete.complete;
+      remindersCopy.splice(index, 1);
+      completedRemindersCopy.unshift(reminderToComplete);
+      queryCache.setQueryData('reminders', [...remindersCopy, ...completedRemindersCopy]);
+
       await remindersService.updateReminder(reminderToComplete);
-      queryCache.invalidateQueries('reminders');
     } catch (error) {
-      console.log(error);
+      setReminders(oldReminders);
+      queryCache.setQueryData('reminders', oldReminders);
+    } finally {
+      queryCache.invalidateQueries('reminders');
     }
   }
 
   async function editReminder(id: number, text: string, dateTime: Date) {
+    queryCache.cancelQueries('reminders');
+    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+    let remindersCopy: Reminder[] = [...reminders];
+
     try {
       let reminderToUpdate: Reminder = reminders.find(r => r.id === id);
+      const index: number = reminders.findIndex(r => r.id === reminderToUpdate.id);
+
       reminderToUpdate.text = text;
       reminderToUpdate.dateTime = dateTime;
       reminderToUpdate.dateTimeString = generateDateTimeString(dateTime);
+      remindersCopy.splice(index, 1, reminderToUpdate);
+      queryCache.setQueryData('reminders', [...remindersCopy, ...completedReminders]);
+
       await remindersService.updateReminder(reminderToUpdate);
-      queryCache.invalidateQueries('reminders');
     } catch (error) {
-      console.log(error);
+      queryCache.setQueryData('reminders', oldReminders);
+    } finally {
+      queryCache.invalidateQueries('reminders');
     }
   }
 
-  async function deleteReminders(remindersToDelete: Reminder[]) {
-    for (let reminder of remindersToDelete) {
-      await remindersService.deleteReminder(reminder.id);
+  async function deleteReminders() {
+    queryCache.cancelQueries('reminders');
+    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+
+    try {
+      queryCache.setQueryData('reminders', reminders);
+      for (let reminder of completedReminders) {
+        await remindersService.deleteReminder(reminder.id);
+      }
+    } catch (error) {
+      queryCache.setQueryData('reminders', oldReminders);
+    } finally {
+      queryCache.invalidateQueries('reminders');
     }
-    queryCache.invalidateQueries('reminders');
   }
 
   function onEditPressed(reminder: Reminder) {
@@ -130,31 +169,37 @@ export default function RemindersScreen({navigation}: any) {
         setReminderToEdit={setReminderToEdit}
         editReminder={editReminder}
       />
-      {reminders.length > 0 || completedReminders.length > 0 ? (
+      {!remindersQuery.isLoading ? (
         <>
-          <ScrollView>
+          {reminders.length > 0 || completedReminders.length > 0 ? (
             <>
-              {reminders.length > 0 && <>{renderedReminders}</>}
-
-              {completedReminders.length > 0 && (
+              <ScrollView>
                 <>
-                  <View style={styles.dividerContainer}>
-                    <Text style={styles.dividerCompleteText}>Complete</Text>
-                    <View style={styles.divider} />
-                  </View>
-                  <TouchableOpacity style={styles.completeButton} onPress={() => deleteReminders(completedReminders)}>
-                    <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
-                  </TouchableOpacity>
-                  <>{renderedCompletedReminders}</>
+                  {reminders.length > 0 && <>{renderedReminders}</>}
+
+                  {completedReminders.length > 0 && (
+                    <>
+                      <View style={styles.dividerContainer}>
+                        <Text style={styles.dividerCompleteText}>Complete</Text>
+                        <View style={styles.divider} />
+                      </View>
+                      <TouchableOpacity style={styles.completeButton} onPress={deleteReminders}>
+                        <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
+                      </TouchableOpacity>
+                      <>{renderedCompletedReminders}</>
+                    </>
+                  )}
                 </>
-              )}
+              </ScrollView>
             </>
-          </ScrollView>
+          ) : (
+            <View style={styles.noItemsContainer}>
+              <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Reminders</Text>
+            </View>
+          )}
         </>
       ) : (
-        <View style={styles.noItemsContainer}>
-          <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Reminders</Text>
-        </View>
+        <Spinner visible={remindersQuery.isLoading} textContent={'Loading...'} textStyle={styles.spinnerTextStyle} />
       )}
     </View>
   );

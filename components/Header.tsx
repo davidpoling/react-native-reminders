@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {Platform} from 'react-native';
+import {useDarkMode} from 'react-native-dynamic';
 
 export default function Header({title}: any) {
   const styles = StyleSheet.create({
@@ -18,12 +19,19 @@ export default function Header({title}: any) {
       fontSize: 25,
       fontWeight: 'bold',
     },
+    textDarkMode: {
+      color: '#3399ff',
+      fontSize: 25,
+      fontWeight: 'bold',
+    },
   });
+
+  const isDarkMode = useDarkMode();
 
   return (
     // Because iPhones have that stupid notch and the header starts at the VERY top of the screen...
     <View style={Platform.OS === 'ios' ? styles.iosheader : styles.header}>
-      <Text style={styles.text}>{title}</Text>
+      <Text style={isDarkMode ? styles.textDarkMode : styles.text}>{title}</Text>
     </View>
   );
 }
