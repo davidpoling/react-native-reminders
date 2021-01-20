@@ -12,6 +12,7 @@ import {shoppingListService} from '../config/appConfig';
 import styles from './ScreenStyles';
 import useShoppingList from '../hooks/useShoppingList';
 import {useQueryCache} from 'react-query';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function ShoppingListScreen({navigation}: any) {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
@@ -24,40 +25,77 @@ export default function ShoppingListScreen({navigation}: any) {
   const queryCache = useQueryCache();
 
   async function addShoppingListItem(text: string) {
+    queryCache.cancelQueries('shoppingList');
+    const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
+
     try {
-      await shoppingListService.addShoppingListItem(new ShoppingListItem(text));
-      queryCache.invalidateQueries('shoppingList');
+      const newShoppingListItem: ShoppingListItem = new ShoppingListItem(text);
+      queryCache.setQueryData('shoppingList', (old: ShoppingListItem[]) => [newShoppingListItem, ...old]);
+
+      await shoppingListService.addShoppingListItem(newShoppingListItem);
     } catch (error) {
-      console.log(error);
+      queryCache.setQueryData('shoppingList', oldShoppingList);
+    } finally {
+      queryCache.invalidateQueries('shoppingList');
     }
   }
 
   async function checkShoppingListItem(shoppingListItemToCheck: ShoppingListItem) {
+    queryCache.cancelQueries('shoppingList');
+    const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
+    let shoppingListCopy: ShoppingListItem[] = [...shoppingList];
+    let checkedShoppingListCopy: ShoppingListItem[] = [...checkedShoppingListItems];
+
     try {
+      const index: number = shoppingList.findIndex(s => s.id === shoppingListItemToCheck.id);
       shoppingListItemToCheck.complete = !shoppingListItemToCheck.complete;
+      shoppingListCopy.splice(index, 1);
+      checkedShoppingListCopy.unshift(shoppingListItemToCheck);
+      queryCache.setQueryData('shoppingList', [...shoppingListCopy, ...checkedShoppingListCopy]);
+
       await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
-      queryCache.invalidateQueries('shoppingList');
     } catch (error) {
-      console.log(error);
+      queryCache.setQueryData('shoppingList', oldShoppingList);
+    } finally {
+      queryCache.invalidateQueries('shoppingList');
     }
   }
 
   async function editShoppingListItem(id: number, text: string) {
+    queryCache.cancelQueries('shoppingList');
+    const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
+    let shoppingListCopy: ShoppingListItem[] = [...shoppingList];
+
     try {
       let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
+      const index: number = shoppingList.findIndex(s => s.id === shoppingListItemToUpdate.id);
+
       shoppingListItemToUpdate.text = text;
+      shoppingListCopy.splice(index, 1, shoppingListItemToUpdate);
+      queryCache.setQueryData('shoppingList', [...shoppingListCopy, ...checkedShoppingListItems]);
+
       await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
-      queryCache.invalidateQueries('shoppingList');
     } catch (error) {
-      console.log(error);
+      queryCache.setQueryData('shoppingList', oldShoppingList);
+    } finally {
+      queryCache.invalidateQueries('shoppingList');
     }
   }
 
-  async function deleteShoppingListItems(shoppingListItems: ShoppingListItem[]) {
-    for (let shoppingListItem of shoppingListItems) {
-      await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
+  async function deleteShoppingListItems() {
+    queryCache.cancelQueries('shoppingList');
+    const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
+
+    try {
+      queryCache.setQueryData('shoppingList', shoppingList);
+      for (let shoppingListItem of checkedShoppingListItems) {
+        await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
+      }
+    } catch (error) {
+      queryCache.setQueryData('shoppingList', oldShoppingList);
+    } finally {
+      queryCache.invalidateQueries('shoppingList');
     }
-    queryCache.invalidateQueries('shoppingList');
   }
 
   function onEditPressed(shoppingListItem: ShoppingListItem) {
@@ -119,33 +157,37 @@ export default function ShoppingListScreen({navigation}: any) {
         setShoppingListItemToEdit={setShoppingListItemToEdit}
         editShoppingListItem={editShoppingListItem}
       />
-      {shoppingList.length > 0 || checkedShoppingListItems.length > 0 ? (
+      {!shoppingListQuery.isLoading ? (
         <>
-          <ScrollView>
+          {shoppingList.length > 0 || checkedShoppingListItems.length > 0 ? (
             <>
-              {shoppingList.length > 0 && <>{renderedShoppingList}</>}
-
-              {checkedShoppingListItems.length > 0 && (
+              <ScrollView>
                 <>
-                  <View style={styles.dividerContainer}>
-                    <Text style={styles.dividerCompleteText}>Checked</Text>
-                    <View style={styles.divider} />
-                  </View>
-                  <TouchableOpacity
-                    style={styles.completeButton}
-                    onPress={() => deleteShoppingListItems(checkedShoppingListItems)}>
-                    <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
-                  </TouchableOpacity>
-                  <>{renderedCheckedShoppingListItems}</>
+                  {shoppingList.length > 0 && <>{renderedShoppingList}</>}
+
+                  {checkedShoppingListItems.length > 0 && (
+                    <>
+                      <View style={styles.dividerContainer}>
+                        <Text style={styles.dividerCompleteText}>Checked</Text>
+                        <View style={styles.divider} />
+                      </View>
+                      <TouchableOpacity style={styles.completeButton} onPress={deleteShoppingListItems}>
+                        <Icon name="ios-trash-outline" size={20} style={styles.completeIcon} />
+                      </TouchableOpacity>
+                      <>{renderedCheckedShoppingListItems}</>
+                    </>
+                  )}
                 </>
-              )}
+              </ScrollView>
             </>
-          </ScrollView>
+          ) : (
+            <View style={styles.noItemsContainer}>
+              <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Shopping List</Text>
+            </View>
+          )}
         </>
       ) : (
-        <View style={styles.noItemsContainer}>
-          <Text style={isDarkMode ? styles.noItemsTextDark : styles.noItemsText}>No Shopping List</Text>
-        </View>
+        <Spinner visible={shoppingListQuery.isLoading} textContent={'Loading...'} textStyle={styles.spinnerTextStyle} />
       )}
     </View>
   );

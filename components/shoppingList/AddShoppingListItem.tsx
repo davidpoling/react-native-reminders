@@ -71,7 +71,7 @@ export default function AddShoppingListItem({
               onPress={() => (shoppingListItemToEdit && shoppingListItemToEdit.id ? onEditPress() : onAddPress())}
               disabled={!addButtonEnabled}>
               <Text style={styles.modalButtonText}>
-                {shoppingListItemToEdit && shoppingListItemToEdit.id ? 'Edit' : 'Add'}
+                {shoppingListItemToEdit && shoppingListItemToEdit.id ? 'Save' : 'Add'}
               </Text>
             </TouchableOpacity>
           </View>

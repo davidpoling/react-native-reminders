@@ -4,6 +4,7 @@ export default class ShoppingListItem {
   complete: boolean;
 
   constructor(text: string) {
+    this.id = Math.random();
     this.text = text;
   }
 }

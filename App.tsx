@@ -58,7 +58,8 @@ export default function App() {
             }}>
             <Tab.Screen name={REMINDERS_SCREEN_NAME} component={RemindersScreen} />
             <Tab.Screen name={SHOPPING_LIST_SCREEN_NAME} component={ShoppingListScreen} />
-            <Tab.Screen name={RECIPES_SCREEN_NAME} component={RecipesScreen} />
+            {/* TODO: Add back in later once I actually start working on this... */}
+            {/* <Tab.Screen name={RECIPES_SCREEN_NAME} component={RecipesScreen} /> */}
           </Tab.Navigator>
         </NavigationContainer>
       </View>

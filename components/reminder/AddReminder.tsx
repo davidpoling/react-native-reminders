@@ -76,7 +76,7 @@ export default function AddReminder({addReminder, reminderToEdit, setReminderToE
               style={addButtonEnabled ? styles.modalButton : styles.modalButtonDisabled}
               onPress={() => (reminderToEdit && reminderToEdit.id ? onEditPress() : onAddPress())}
               disabled={!addButtonEnabled}>
-              <Text style={styles.modalButtonText}>{reminderToEdit && reminderToEdit.id ? 'Edit' : 'Add'}</Text>
+              <Text style={styles.modalButtonText}>{reminderToEdit && reminderToEdit.id ? 'Save' : 'Add'}</Text>
             </TouchableOpacity>
           </View>
         </View>
