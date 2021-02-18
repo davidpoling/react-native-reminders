@@ -13,8 +13,9 @@ import styles from './ScreenStyles';
 import useShoppingList from '../hooks/useShoppingList';
 import {useQueryCache} from 'react-query';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {SHOPPING_LIST_QUERY} from '../hooks/query-cache-names';
 
-export default function ShoppingListScreen({navigation}: any) {
+export default function ShoppingListScreen() {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [shoppingListItemToEdit, setShoppingListItemToEdit] = useState<ShoppingListItem>(null);
   const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<ShoppingListItem[]>([]);
@@ -25,23 +26,23 @@ export default function ShoppingListScreen({navigation}: any) {
   const queryCache = useQueryCache();
 
   async function addShoppingListItem(text: string) {
-    queryCache.cancelQueries('shoppingList');
+    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
     const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
 
     try {
       const newShoppingListItem: ShoppingListItem = new ShoppingListItem(text);
-      queryCache.setQueryData('shoppingList', (old: ShoppingListItem[]) => [newShoppingListItem, ...old]);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, (old: ShoppingListItem[]) => [newShoppingListItem, ...old]);
 
       await shoppingListService.addShoppingListItem(newShoppingListItem);
     } catch (error) {
-      queryCache.setQueryData('shoppingList', oldShoppingList);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
     } finally {
-      queryCache.invalidateQueries('shoppingList');
+      queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
     }
   }
 
   async function checkShoppingListItem(shoppingListItemToCheck: ShoppingListItem) {
-    queryCache.cancelQueries('shoppingList');
+    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
     const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
     let shoppingListCopy: ShoppingListItem[] = [...shoppingList];
     let checkedShoppingListCopy: ShoppingListItem[] = [...checkedShoppingListItems];
@@ -51,18 +52,18 @@ export default function ShoppingListScreen({navigation}: any) {
       shoppingListItemToCheck.complete = !shoppingListItemToCheck.complete;
       shoppingListCopy.splice(index, 1);
       checkedShoppingListCopy.unshift(shoppingListItemToCheck);
-      queryCache.setQueryData('shoppingList', [...shoppingListCopy, ...checkedShoppingListCopy]);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, [...shoppingListCopy, ...checkedShoppingListCopy]);
 
       await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
     } catch (error) {
-      queryCache.setQueryData('shoppingList', oldShoppingList);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
     } finally {
-      queryCache.invalidateQueries('shoppingList');
+      queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
     }
   }
 
   async function editShoppingListItem(id: number, text: string) {
-    queryCache.cancelQueries('shoppingList');
+    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
     const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
     let shoppingListCopy: ShoppingListItem[] = [...shoppingList];
 
@@ -72,29 +73,27 @@ export default function ShoppingListScreen({navigation}: any) {
 
       shoppingListItemToUpdate.text = text;
       shoppingListCopy.splice(index, 1, shoppingListItemToUpdate);
-      queryCache.setQueryData('shoppingList', [...shoppingListCopy, ...checkedShoppingListItems]);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, [...shoppingListCopy, ...checkedShoppingListItems]);
 
       await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
     } catch (error) {
-      queryCache.setQueryData('shoppingList', oldShoppingList);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
     } finally {
-      queryCache.invalidateQueries('shoppingList');
+      queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
     }
   }
 
   async function deleteShoppingListItems() {
-    queryCache.cancelQueries('shoppingList');
+    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
     const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
 
     try {
-      queryCache.setQueryData('shoppingList', shoppingList);
-      for (let shoppingListItem of checkedShoppingListItems) {
-        await shoppingListService.deleteShoppingListItem(shoppingListItem.id);
-      }
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, shoppingList);
+      await shoppingListService.deleteCompletedShoppingListItems();
     } catch (error) {
-      queryCache.setQueryData('shoppingList', oldShoppingList);
+      queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
     } finally {
-      queryCache.invalidateQueries('shoppingList');
+      queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
     }
   }
 

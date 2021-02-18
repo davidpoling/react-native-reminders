@@ -1,7 +1,7 @@
 // import Endpoint from './endpoint';
 import axios, {AxiosResponse} from 'axios';
 import Reminder from '../beans/Reminder';
-import {REMINDER_URL} from './rest-constants';
+import {REMINDER_URL, REMINDER_URL_DELETE_COMPLETED} from './rest-constants';
 
 export default class RemindersService {
   /**
@@ -44,6 +44,16 @@ export default class RemindersService {
    */
   async deleteReminder(reminderId: number): Promise<number> {
     const response = await axios.delete(REMINDER_URL + '/' + reminderId);
+    return response.data;
+  }
+
+  /**
+   * Delete all completed Reminders.
+   *
+   * @returns The number of successfully deleted Reminders.
+   */
+  async deleteCompletedReminders(): Promise<number> {
+    const response = await axios.delete(REMINDER_URL_DELETE_COMPLETED);
     return response.data;
   }
 
