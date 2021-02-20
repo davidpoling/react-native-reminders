@@ -15,8 +15,9 @@ import useReminders from '../hooks/useReminders';
 import {useQueryCache} from 'react-query';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SpecialModal from '../components/modals/SpecialModal';
+import {REMINDERS_QUERY} from '../hooks/query-cache-names';
 
-export default function RemindersScreen({navigation}: any) {
+export default function RemindersScreen() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [reminderToEdit, setReminderToEdit] = useState<Reminder>(null);
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
@@ -28,23 +29,23 @@ export default function RemindersScreen({navigation}: any) {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   async function addReminder(text: string, dateTime: Date) {
-    queryCache.cancelQueries('reminders');
+    queryCache.cancelQueries(REMINDERS_QUERY);
     const oldReminders: Reminder[] = [...reminders, ...completedReminders];
 
     try {
       const newReminder: Reminder = new Reminder(text, dateTime);
-      queryCache.setQueryData('reminders', (old: Reminder[]) => [newReminder, ...old]);
+      queryCache.setQueryData(REMINDERS_QUERY, (old: Reminder[]) => [newReminder, ...old]);
 
       await remindersService.addReminder(newReminder);
     } catch (error) {
-      queryCache.setQueryData('reminders', oldReminders);
+      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries('reminders');
+      queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 
   async function completeReminder(reminderToComplete: Reminder) {
-    queryCache.cancelQueries('reminders');
+    queryCache.cancelQueries(REMINDERS_QUERY);
     const oldReminders: Reminder[] = [...reminders, ...completedReminders];
     let remindersCopy: Reminder[] = [...reminders];
     let completedRemindersCopy: Reminder[] = [...completedReminders];
@@ -58,19 +59,19 @@ export default function RemindersScreen({navigation}: any) {
       reminderToComplete.complete = !reminderToComplete.complete;
       remindersCopy.splice(index, 1);
       completedRemindersCopy.unshift(reminderToComplete);
-      queryCache.setQueryData('reminders', [...remindersCopy, ...completedRemindersCopy]);
+      queryCache.setQueryData(REMINDERS_QUERY, [...remindersCopy, ...completedRemindersCopy]);
 
       await remindersService.updateReminder(reminderToComplete);
     } catch (error) {
       setReminders(oldReminders);
-      queryCache.setQueryData('reminders', oldReminders);
+      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries('reminders');
+      queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 
   async function editReminder(id: number, text: string, dateTime: Date) {
-    queryCache.cancelQueries('reminders');
+    queryCache.cancelQueries(REMINDERS_QUERY);
     const oldReminders: Reminder[] = [...reminders, ...completedReminders];
     let remindersCopy: Reminder[] = [...reminders];
 
@@ -82,29 +83,27 @@ export default function RemindersScreen({navigation}: any) {
       reminderToUpdate.dateTime = dateTime;
       reminderToUpdate.dateTimeString = generateDateTimeString(dateTime);
       remindersCopy.splice(index, 1, reminderToUpdate);
-      queryCache.setQueryData('reminders', [...remindersCopy, ...completedReminders]);
+      queryCache.setQueryData(REMINDERS_QUERY, [...remindersCopy, ...completedReminders]);
 
       await remindersService.updateReminder(reminderToUpdate);
     } catch (error) {
-      queryCache.setQueryData('reminders', oldReminders);
+      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries('reminders');
+      queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 
   async function deleteReminders() {
-    queryCache.cancelQueries('reminders');
+    queryCache.cancelQueries(REMINDERS_QUERY);
     const oldReminders: Reminder[] = [...reminders, ...completedReminders];
 
     try {
-      queryCache.setQueryData('reminders', reminders);
-      for (let reminder of completedReminders) {
-        await remindersService.deleteReminder(reminder.id);
-      }
+      queryCache.setQueryData(REMINDERS_QUERY, reminders);
+      await remindersService.deleteCompletedReminders();
     } catch (error) {
-      queryCache.setQueryData('reminders', oldReminders);
+      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries('reminders');
+      queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 

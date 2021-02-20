@@ -1,6 +1,6 @@
 import axios from 'axios';
 import ShoppingListItem from '../beans/ShoppingListItem';
-import {SHOPPING_LIST_URL} from './rest-constants';
+import {SHOPPING_LIST_URL, SHOPPING_LIST_URL_DELETE_COMPLETED} from './rest-constants';
 
 export default class ShoppingListService {
   /**
@@ -43,6 +43,16 @@ export default class ShoppingListService {
    */
   async deleteShoppingListItem(shoppingListItemId: number): Promise<number> {
     const response = await axios.delete(SHOPPING_LIST_URL + '/' + shoppingListItemId);
+    return response.data;
+  }
+
+  /**
+   * Delete all completed ShoppingListItems.
+   *
+   * @returns The number of successfully deleted ShoppingListItems.
+   */
+  async deleteCompletedShoppingListItems(): Promise<number> {
+    const response = await axios.delete(SHOPPING_LIST_URL_DELETE_COMPLETED);
     return response.data;
   }
 }
