@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Modal, View, Text, TouchableHighlight, StyleSheet} from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
@@ -9,6 +9,9 @@ export default function SpecialModal(props: any) {
   const [buttonText, setButtonText] = useState<string>(initialButtonText);
   const [buttonPressCount, setButtonPressCount] = useState<number>(0);
   const [isPropsing, setIsProposing] = useState<boolean>(false);
+  const [confettiVisible, setConfettiVisible] = useState<boolean>(true);
+
+  const confetti = useRef(null);
 
   function handleButtonPress() {
     let count = buttonPressCount;
@@ -49,6 +52,7 @@ export default function SpecialModal(props: any) {
         props.setModalVisible(false);
         setModalText(initialModalText);
         setButtonText(initialButtonText);
+        setConfettiVisible(true);
         count = 0;
         break;
     }
@@ -60,6 +64,7 @@ export default function SpecialModal(props: any) {
     setModalText('YAY!!');
     setButtonText(':)');
     setIsProposing(false);
+    setConfettiVisible(true);
   }
 
   function handleNoButtonPress() {
@@ -67,6 +72,12 @@ export default function SpecialModal(props: any) {
     setButtonText(':(');
     setIsProposing(false);
   }
+
+  useEffect(() => {
+    if (confettiVisible && modalText === 'YAY!!') {
+      confetti.current.start();
+    }
+  }, [confettiVisible, modalText]);
 
   return (
     <>
@@ -91,7 +102,16 @@ export default function SpecialModal(props: any) {
           </View>
         </View>
       </Modal>
-      {props.modalVisible && <ConfettiCannon count={200} origin={{x: -10, y: 0}} fadeOut fallSpeed={5000} />}
+      {props.modalVisible && confettiVisible && (
+        <ConfettiCannon
+          ref={confetti}
+          count={300}
+          origin={{x: -10, y: 0}}
+          fadeOut
+          fallSpeed={3000}
+          onAnimationEnd={() => setConfettiVisible(false)}
+        />
+      )}
     </>
   );
 }
