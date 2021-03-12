@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Modal, View, Text, TouchableHighlight, StyleSheet} from 'react-native';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function SpecialModal(props: any) {
   const initialModalText = 'Hey baby, I have something very important to say to you...';
@@ -68,27 +69,30 @@ export default function SpecialModal(props: any) {
   }
 
   return (
-    <Modal animationType="slide" transparent={true} visible={props.modalVisible}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>{modalText}</Text>
-          {!isPropsing ? (
-            <TouchableHighlight style={styles.button} onPress={() => handleButtonPress()}>
-              <Text style={styles.textStyle}>{buttonText}</Text>
-            </TouchableHighlight>
-          ) : (
-            <View style={styles.decisionButtonContainer}>
-              <TouchableHighlight style={styles.button} onPress={() => handleYesButtonPress()}>
-                <Text style={styles.textStyle}>Yes</Text>
+    <>
+      <Modal animationType="slide" transparent={true} visible={props.modalVisible}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>{modalText}</Text>
+            {!isPropsing ? (
+              <TouchableHighlight style={styles.button} onPress={() => handleButtonPress()}>
+                <Text style={styles.textStyle}>{buttonText}</Text>
               </TouchableHighlight>
-              <TouchableHighlight style={styles.button} onPress={() => handleNoButtonPress()}>
-                <Text style={styles.textStyle}>No</Text>
-              </TouchableHighlight>
-            </View>
-          )}
+            ) : (
+              <View style={styles.decisionButtonContainer}>
+                <TouchableHighlight style={styles.button} onPress={() => handleYesButtonPress()}>
+                  <Text style={styles.textStyle}>Yes</Text>
+                </TouchableHighlight>
+                <TouchableHighlight style={styles.button} onPress={() => handleNoButtonPress()}>
+                  <Text style={styles.textStyle}>No</Text>
+                </TouchableHighlight>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      {props.modalVisible && <ConfettiCannon count={200} origin={{x: -10, y: 0}} fadeOut fallSpeed={5000} />}
+    </>
   );
 }
 
