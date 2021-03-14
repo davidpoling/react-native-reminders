@@ -30,29 +30,29 @@ export default function RemindersScreen() {
 
   async function addReminder(text: string, dateTime: Date) {
     queryCache.cancelQueries(REMINDERS_QUERY);
-    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+    // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
 
     try {
       const newReminder: Reminder = new Reminder(text, dateTime);
       queryCache.setQueryData(REMINDERS_QUERY, (old: Reminder[]) => [newReminder, ...old]);
 
-      await remindersService.addReminder(newReminder);
+      // await remindersService.addReminder(newReminder);
     } catch (error) {
-      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // Swallow exception, comment the catch and finally blocks back in to use with a backend.
+      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 
   async function completeReminder(reminderToComplete: Reminder) {
     queryCache.cancelQueries(REMINDERS_QUERY);
-    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+    // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
     let remindersCopy: Reminder[] = [...reminders];
     let completedRemindersCopy: Reminder[] = [...completedReminders];
 
     try {
-      // TODO: Figure out what task to use here.
-      if (reminderToComplete.text === 'Have the perfect day') {
+      if (reminderToComplete.text.trim() === 'Have the perfect day') {
         setModalVisible(true);
       }
       const index: number = reminders.findIndex(r => r.id === reminderToComplete.id);
@@ -61,18 +61,19 @@ export default function RemindersScreen() {
       completedRemindersCopy.unshift(reminderToComplete);
       queryCache.setQueryData(REMINDERS_QUERY, [...remindersCopy, ...completedRemindersCopy]);
 
-      await remindersService.updateReminder(reminderToComplete);
+      // await remindersService.updateReminder(reminderToComplete);
     } catch (error) {
-      setReminders(oldReminders);
-      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // Swallow exception, comment the catch and finally blocks back in to use with a backend.
+      // setReminders(oldReminders);
+      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 
   async function editReminder(id: number, text: string, dateTime: Date) {
     queryCache.cancelQueries(REMINDERS_QUERY);
-    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+    // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
     let remindersCopy: Reminder[] = [...reminders];
 
     try {
@@ -85,25 +86,27 @@ export default function RemindersScreen() {
       remindersCopy.splice(index, 1, reminderToUpdate);
       queryCache.setQueryData(REMINDERS_QUERY, [...remindersCopy, ...completedReminders]);
 
-      await remindersService.updateReminder(reminderToUpdate);
+      // await remindersService.updateReminder(reminderToUpdate);
     } catch (error) {
-      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // Swallow exception, comment the catch and finally blocks back in to use with a backend.
+      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 
   async function deleteReminders() {
     queryCache.cancelQueries(REMINDERS_QUERY);
-    const oldReminders: Reminder[] = [...reminders, ...completedReminders];
+    // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
 
     try {
       queryCache.setQueryData(REMINDERS_QUERY, reminders);
-      await remindersService.deleteCompletedReminders();
+      // await remindersService.deleteCompletedReminders();
     } catch (error) {
-      queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // Swallow exception, comment the catch and finally blocks back in to use with a backend.
+      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
     } finally {
-      queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryCache.invalidateQueries(REMINDERS_QUERY);
     }
   }
 

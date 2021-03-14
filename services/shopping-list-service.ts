@@ -9,8 +9,12 @@ export default class ShoppingListService {
    * @returns The ShoppingList.
    */
   async getShoppingList(): Promise<ShoppingListItem[]> {
-    const response = await axios.get(SHOPPING_LIST_URL);
-    return response.data;
+    // const response = await axios.get(SHOPPING_LIST_URL);
+    const response = new Promise<ShoppingListItem[]>(resolve => {
+      resolve([new ShoppingListItem('Eggs')]);
+    });
+    // return response.data;
+    return response;
   }
 
   /**

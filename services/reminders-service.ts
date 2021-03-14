@@ -1,4 +1,3 @@
-// import Endpoint from './endpoint';
 import axios, {AxiosResponse} from 'axios';
 import Reminder from '../beans/Reminder';
 import {REMINDER_URL, REMINDER_URL_DELETE_COMPLETED} from './rest-constants';
@@ -10,8 +9,12 @@ export default class RemindersService {
    * @returns A list of all reminders.
    */
   async getReminders(): Promise<Reminder[]> {
-    const response = await axios.get(REMINDER_URL);
-    return this.processReminder(response);
+    // const response = await axios.get(REMINDER_URL);
+    const response = new Promise<Reminder[]>(resolve => {
+      resolve([new Reminder('Have the perfect day', new Date())]);
+    });
+    // return this.processReminder(response);
+    return response;
   }
 
   /**
