@@ -1,12 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableHighlight} from 'react-native';
-import {useDarkMode} from 'react-native-dynamic';
+import {View, Text, TouchableHighlight, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from '../ListItemStyles';
 
 export default function CheckedShoppingListItem({item}: any) {
   const [iconName, setIconName] = useState<string>('circle');
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useColorScheme() === 'dark';
 
   return (
     <TouchableHighlight style={isDarkMode ? styles.listItemDark : styles.listItem}>

@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, Modal} from 'react-native';
-import {useDarkMode} from 'react-native-dynamic';
+import {View, Text, TextInput, TouchableOpacity, Modal, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from '../AddItemStyles';
 
@@ -13,7 +12,7 @@ export default function AddShoppingListItem({
   const [text, setText] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [addButtonEnabled, setAddButtonEnabled] = useState<boolean>(false);
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useColorScheme() === "dark";
 
   function onChange(textValue: string) {
     setText(textValue);

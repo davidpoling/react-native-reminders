@@ -60,7 +60,7 @@ export default class RemindersService {
     return response.data;
   }
 
-  processReminder(response: AxiosResponse): Reminder[] {
+  processReminder(response: AxiosResponse): Reminder[] | void {
     const reminders = response.data;
     if (Array.isArray(reminders)) {
       return reminders.map(reminder => {

@@ -1,7 +1,6 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, useColorScheme} from 'react-native';
 import {Platform} from 'react-native';
-import {useDarkMode} from 'react-native-dynamic';
 
 export default function Header({title}: any) {
   const styles = StyleSheet.create({
@@ -26,7 +25,7 @@ export default function Header({title}: any) {
     },
   });
 
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useColorScheme() === 'dark';
 
   return (
     // Because iPhones have that stupid notch and the header starts at the VERY top of the screen...

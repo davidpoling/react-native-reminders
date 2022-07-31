@@ -11,7 +11,7 @@ export default function SpecialModal(props: any) {
   const [isPropsing, setIsProposing] = useState<boolean>(false);
   const [confettiVisible, setConfettiVisible] = useState<boolean>(true);
 
-  const confetti = useRef(null);
+  const confetti = useRef<ConfettiCannon>(null);
 
   function handleButtonPress() {
     let count = buttonPressCount;
@@ -75,7 +75,7 @@ export default function SpecialModal(props: any) {
 
   useEffect(() => {
     if (confettiVisible && modalText === 'YAY!!') {
-      confetti.current.start();
+      confetti.current?.start();
     }
   }, [confettiVisible, modalText]);
 

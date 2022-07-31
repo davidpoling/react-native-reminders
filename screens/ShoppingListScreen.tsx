@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import {useDarkMode} from 'react-native-dynamic';
+import {View, Text, TouchableOpacity, useColorScheme} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ShoppingListItem from '../beans/ShoppingListItem';
@@ -8,42 +7,47 @@ import Header from '../components/Header';
 import AddShoppingListItem from '../components/shoppingList/AddShoppingListItem';
 import CheckedShoppingListItem from '../components/shoppingList/CheckedShoppingListItem';
 import ShoppingListScreenItem from '../components/shoppingList/ShoppingListScreenItem';
-import {shoppingListService} from '../config/appConfig';
 import styles from './ScreenStyles';
-import useShoppingList from '../hooks/useShoppingList';
-import {useQueryCache} from 'react-query';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {SHOPPING_LIST_QUERY} from '../hooks/query-cache-names';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {shoppingListService} from '../config/appConfig';
 
 export default function ShoppingListScreen() {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
-  const [shoppingListItemToEdit, setShoppingListItemToEdit] = useState<ShoppingListItem>(null);
+  const [shoppingListItemToEdit, setShoppingListItemToEdit] = useState<ShoppingListItem>({} as ShoppingListItem);
   const [checkedShoppingListItems, setCheckedShoppingListItems] = useState<ShoppingListItem[]>([]);
-  const [renderedShoppingList, setRenderedShoppingList] = useState<any>([]);
-  const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<any>([]);
-  const isDarkMode = useDarkMode();
-  const shoppingListQuery = useShoppingList();
-  const queryCache = useQueryCache();
+  const [renderedShoppingList, setRenderedShoppingList] = useState<JSX.Element[]>([]);
+  const [renderedCheckedShoppingListItems, setRenderedCheckedShoppingListItems] = useState<JSX.Element[]>([]);
+
+  const isDarkMode = useColorScheme() === 'dark';
+  const {data: allShoppingList, isLoading, isSuccess} = useQuery(
+    [SHOPPING_LIST_QUERY],
+    () => shoppingListService.getShoppingList(),
+    {cacheTime: 10000, refetchInterval: 10000},
+  );
+  const queryClient = useQueryClient();
 
   async function addShoppingListItem(text: string) {
-    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
+    queryClient.cancelQueries([SHOPPING_LIST_QUERY]);
     // const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
 
     try {
       const newShoppingListItem: ShoppingListItem = new ShoppingListItem(text);
-      queryCache.setQueryData(SHOPPING_LIST_QUERY, (old: ShoppingListItem[]) => [newShoppingListItem, ...old]);
+      // @ts-ignore
+      queryClient.setQueryData([SHOPPING_LIST_QUERY], (old: ShoppingListItem[]) => [newShoppingListItem, ...old]);
 
       // await shoppingListService.addShoppingListItem(newShoppingListItem);
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      // queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
+      // queryClient.setQueryData([SHOPPING_LIST_QUERY], oldShoppingList);
     } finally {
-      // queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
+      // queryClient.invalidateQueries([SHOPPING_LIST_QUERY]);
     }
   }
 
   async function checkShoppingListItem(shoppingListItemToCheck: ShoppingListItem) {
-    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
+    queryClient.cancelQueries([SHOPPING_LIST_QUERY]);
     // const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
     let shoppingListCopy: ShoppingListItem[] = [...shoppingList];
     let checkedShoppingListCopy: ShoppingListItem[] = [...checkedShoppingListItems];
@@ -53,51 +57,51 @@ export default function ShoppingListScreen() {
       shoppingListItemToCheck.complete = !shoppingListItemToCheck.complete;
       shoppingListCopy.splice(index, 1);
       checkedShoppingListCopy.unshift(shoppingListItemToCheck);
-      queryCache.setQueryData(SHOPPING_LIST_QUERY, [...shoppingListCopy, ...checkedShoppingListCopy]);
+      queryClient.setQueryData([SHOPPING_LIST_QUERY], [...shoppingListCopy, ...checkedShoppingListCopy]);
 
       // await shoppingListService.updateShoppingListItem(shoppingListItemToCheck);
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      // queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
+      // queryClient.setQueryData([SHOPPING_LIST_QUERY], oldShoppingList);
     } finally {
-      // queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
+      // queryClient.invalidateQueries([SHOPPING_LIST_QUERY]);
     }
   }
 
   async function editShoppingListItem(id: number, text: string) {
-    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
+    queryClient.cancelQueries([SHOPPING_LIST_QUERY]);
     // const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
     let shoppingListCopy: ShoppingListItem[] = [...shoppingList];
 
     try {
-      let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id);
+      let shoppingListItemToUpdate: ShoppingListItem = shoppingList.find(s => s.id === id)!!;
       const index: number = shoppingList.findIndex(s => s.id === shoppingListItemToUpdate.id);
 
       shoppingListItemToUpdate.text = text;
       shoppingListCopy.splice(index, 1, shoppingListItemToUpdate);
-      queryCache.setQueryData(SHOPPING_LIST_QUERY, [...shoppingListCopy, ...checkedShoppingListItems]);
+      queryClient.setQueryData([SHOPPING_LIST_QUERY], [...shoppingListCopy, ...checkedShoppingListItems]);
 
       // await shoppingListService.updateShoppingListItem(shoppingListItemToUpdate);
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
+      // queryClient.setQueryData([SHOPPING_LIST_QUERY], oldShoppingList);
     } finally {
-      queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
+      queryClient.invalidateQueries([SHOPPING_LIST_QUERY]);
     }
   }
 
   async function deleteShoppingListItems() {
-    queryCache.cancelQueries(SHOPPING_LIST_QUERY);
+    queryClient.cancelQueries([SHOPPING_LIST_QUERY]);
     // const oldShoppingList: ShoppingListItem[] = [...shoppingList, ...checkedShoppingListItems];
 
     try {
-      queryCache.setQueryData(SHOPPING_LIST_QUERY, shoppingList);
+      queryClient.setQueryData([SHOPPING_LIST_QUERY], shoppingList);
       // await shoppingListService.deleteCompletedShoppingListItems();
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      // queryCache.setQueryData(SHOPPING_LIST_QUERY, oldShoppingList);
+      // queryClient.setQueryData([SHOPPING_LIST_QUERY], oldShoppingList);
     } finally {
-      // queryCache.invalidateQueries(SHOPPING_LIST_QUERY);
+      // queryClient.invalidateQueries([SHOPPING_LIST_QUERY]);
     }
   }
 
@@ -133,11 +137,11 @@ export default function ShoppingListScreen() {
   }
 
   useEffect(() => {
-    if (shoppingListQuery.isSuccess && shoppingListQuery.data) {
-      setShoppingList(shoppingListQuery.data.filter(s => !s.complete));
-      setCheckedShoppingListItems(shoppingListQuery.data.filter(s => s.complete));
+    if (allShoppingList && isSuccess && !isLoading) {
+      setShoppingList(allShoppingList.filter(s => !s.complete));
+      setCheckedShoppingListItems(allShoppingList.filter(s => s.complete));
     }
-  }, [shoppingListQuery]);
+  }, [allShoppingList, isSuccess, isLoading]);
 
   useEffect(() => {
     if (shoppingList.length > 0) {
@@ -160,7 +164,7 @@ export default function ShoppingListScreen() {
         setShoppingListItemToEdit={setShoppingListItemToEdit}
         editShoppingListItem={editShoppingListItem}
       />
-      {!shoppingListQuery.isLoading ? (
+      {!isLoading ? (
         <>
           {shoppingList.length > 0 || checkedShoppingListItems.length > 0 ? (
             <>
@@ -190,7 +194,7 @@ export default function ShoppingListScreen() {
           )}
         </>
       ) : (
-        <Spinner visible={shoppingListQuery.isLoading} textContent={'Loading...'} textStyle={styles.spinnerTextStyle} />
+        <Spinner visible={isLoading} textContent={'Loading...'} textStyle={styles.spinnerTextStyle} />
       )}
     </View>
   );

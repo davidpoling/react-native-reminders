@@ -1,23 +1,21 @@
 import React from 'react';
-import 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {DarkTheme, DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {View, StyleSheet} from 'react-native';
-import {useDarkMode} from 'react-native-dynamic';
+import {useColorScheme} from 'react-native';
 import RemindersScreen from './screens/RemindersScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
-import RecipesScreen from './screens/RecipesScreen';
-import {QueryCache, ReactQueryCacheProvider} from 'react-query';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 
-const queryCache = new QueryCache();
+const queryClient = new QueryClient();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const Tab = createBottomTabNavigator();
   const REMINDERS_SCREEN_NAME = 'Reminders';
   const SHOPPING_LIST_SCREEN_NAME = 'Shopping List';
   const RECIPES_SCREEN_NAME = 'Recipes';
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useColorScheme() === 'dark';
 
   const styles = StyleSheet.create({
     container: {
@@ -34,13 +32,13 @@ export default function App() {
   };
 
   return (
-    <ReactQueryCacheProvider queryCache={queryCache}>
+    <QueryClientProvider client={queryClient}>
       <View style={styles.container}>
         <NavigationContainer theme={isDarkMode ? NavigationContainerDarkTheme : NavigationContainerDefaultTheme}>
           <Tab.Navigator
             screenOptions={({route}: any) => ({
               tabBarIcon: ({focused, color, size}: any) => {
-                let iconName: string;
+                let iconName: string = 'ios-checkmark-circle';
 
                 if (route.name === REMINDERS_SCREEN_NAME) {
                   iconName = focused ? 'ios-checkmark-circle' : 'ios-checkmark-circle-outline';
@@ -51,18 +49,15 @@ export default function App() {
                 }
                 return <Ionicons name={iconName} size={size} color={color} />;
               },
-            })}
-            tabBarOptions={{
-              activeTintColor: '#3399ff',
-              inactiveTintColor: 'gray',
-            }}>
+              tabBarActiveTintColor: '#3399ff',
+              tabBarInactiveTintColor: 'gray',
+              headerShown: false,
+            })}>
             <Tab.Screen name={REMINDERS_SCREEN_NAME} component={RemindersScreen} />
             <Tab.Screen name={SHOPPING_LIST_SCREEN_NAME} component={ShoppingListScreen} />
-            {/* TODO: Add back in later once I actually start working on this... */}
-            {/* <Tab.Screen name={RECIPES_SCREEN_NAME} component={RecipesScreen} /> */}
           </Tab.Navigator>
         </NavigationContainer>
       </View>
-    </ReactQueryCacheProvider>
+    </QueryClientProvider>
   );
 }

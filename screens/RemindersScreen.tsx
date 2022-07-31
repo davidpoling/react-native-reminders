@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AddReminder from '../components/reminder/AddReminder';
-import {remindersService} from '../config/appConfig';
 import Reminder from '../beans/Reminder';
 import Header from '../components/Header';
 import styles from './ScreenStyles';
@@ -10,43 +9,48 @@ import ReminderListItem from '../components/reminder/ReminderListItem';
 import moment from 'moment';
 import CompletedReminderListItem from '../components/reminder/CompletedReminderListItem';
 import {ScrollView} from 'react-native-gesture-handler';
-import {useDarkMode} from 'react-native-dynamic';
-import useReminders from '../hooks/useReminders';
-import {useQueryCache} from 'react-query';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SpecialModal from '../components/modals/SpecialModal';
 import {REMINDERS_QUERY} from '../hooks/query-cache-names';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {remindersService} from '../config/appConfig';
 
 export default function RemindersScreen() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [reminderToEdit, setReminderToEdit] = useState<Reminder>(null);
+  const [reminderToEdit, setReminderToEdit] = useState<Reminder>({} as Reminder);
   const [completedReminders, setCompletedReminders] = useState<Reminder[]>([]);
-  const [renderedReminders, setRenderedReminders] = useState<any>([]);
-  const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<any>([]);
-  const isDarkMode = useDarkMode();
-  const remindersQuery = useReminders();
-  const queryCache = useQueryCache();
+  const [renderedReminders, setRenderedReminders] = useState<JSX.Element[]>([]);
+  const [renderedCompletedReminders, setRenderedCompletedReminders] = useState<JSX.Element[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
+  const isDarkMode = useColorScheme() === 'dark';
+  const {data: allReminders, isLoading, isSuccess} = useQuery(
+    [REMINDERS_QUERY],
+    () => remindersService.getReminders(),
+    {cacheTime: 10000, refetchInterval: 10000},
+  );
+  const queryClient = useQueryClient();
+
   async function addReminder(text: string, dateTime: Date) {
-    queryCache.cancelQueries(REMINDERS_QUERY);
+    queryClient.cancelQueries([REMINDERS_QUERY]);
     // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
 
     try {
       const newReminder: Reminder = new Reminder(text, dateTime);
-      queryCache.setQueryData(REMINDERS_QUERY, (old: Reminder[]) => [newReminder, ...old]);
+      // @ts-ignore
+      queryClient.setQueryData([REMINDERS_QUERY], (old: Reminder[]) => [newReminder, ...old]);
 
       // await remindersService.addReminder(newReminder);
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // queryClient.setQueryData([REMINDERS_QUERY], oldReminders);
     } finally {
-      // queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryClient.invalidateQueries([REMINDERS_QUERY]);
     }
   }
 
   async function completeReminder(reminderToComplete: Reminder) {
-    queryCache.cancelQueries(REMINDERS_QUERY);
+    queryClient.cancelQueries([REMINDERS_QUERY]);
     // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
     let remindersCopy: Reminder[] = [...reminders];
     let completedRemindersCopy: Reminder[] = [...completedReminders];
@@ -59,54 +63,54 @@ export default function RemindersScreen() {
       reminderToComplete.complete = !reminderToComplete.complete;
       remindersCopy.splice(index, 1);
       completedRemindersCopy.unshift(reminderToComplete);
-      queryCache.setQueryData(REMINDERS_QUERY, [...remindersCopy, ...completedRemindersCopy]);
+      queryClient.setQueryData([REMINDERS_QUERY], [...remindersCopy, ...completedRemindersCopy]);
 
       // await remindersService.updateReminder(reminderToComplete);
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
       // setReminders(oldReminders);
-      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // queryClient.setQueryData([REMINDERS_QUERY], oldReminders);
     } finally {
-      // queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryClient.invalidateQueries([REMINDERS_QUERY]);
     }
   }
 
   async function editReminder(id: number, text: string, dateTime: Date) {
-    queryCache.cancelQueries(REMINDERS_QUERY);
+    queryClient.cancelQueries([REMINDERS_QUERY]);
     // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
     let remindersCopy: Reminder[] = [...reminders];
 
     try {
-      let reminderToUpdate: Reminder = reminders.find(r => r.id === id);
+      let reminderToUpdate: Reminder = reminders.find(r => r.id === id)!!;
       const index: number = reminders.findIndex(r => r.id === reminderToUpdate.id);
 
       reminderToUpdate.text = text;
       reminderToUpdate.dateTime = dateTime;
       reminderToUpdate.dateTimeString = generateDateTimeString(dateTime);
       remindersCopy.splice(index, 1, reminderToUpdate);
-      queryCache.setQueryData(REMINDERS_QUERY, [...remindersCopy, ...completedReminders]);
+      queryClient.setQueryData([REMINDERS_QUERY], [...remindersCopy, ...completedReminders]);
 
       // await remindersService.updateReminder(reminderToUpdate);
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // queryClient.setQueryData([REMINDERS_QUERY], oldReminders);
     } finally {
-      // queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryClient.invalidateQueries([REMINDERS_QUERY]);
     }
   }
 
   async function deleteReminders() {
-    queryCache.cancelQueries(REMINDERS_QUERY);
+    queryClient.cancelQueries([REMINDERS_QUERY]);
     // const oldReminders: Reminder[] = [...reminders, ...completedReminders];
 
     try {
-      queryCache.setQueryData(REMINDERS_QUERY, reminders);
+      queryClient.setQueryData([REMINDERS_QUERY], reminders);
       // await remindersService.deleteCompletedReminders();
     } catch (error) {
       // Swallow exception, comment the catch and finally blocks back in to use with a backend.
-      // queryCache.setQueryData(REMINDERS_QUERY, oldReminders);
+      // queryClient.setQueryData([REMINDERS_QUERY], oldReminders);
     } finally {
-      // queryCache.invalidateQueries(REMINDERS_QUERY);
+      // queryClient.invalidateQueries([REMINDERS_QUERY]);
     }
   }
 
@@ -150,11 +154,11 @@ export default function RemindersScreen() {
   }
 
   useEffect(() => {
-    if (remindersQuery.isSuccess && remindersQuery.data) {
-      setReminders(remindersQuery.data.filter(r => !r.complete));
-      setCompletedReminders(remindersQuery.data.filter(r => r.complete));
+    if (allReminders && isSuccess && !isLoading) {
+      setReminders(allReminders.filter(r => !r.complete));
+      setCompletedReminders(allReminders.filter(r => r.complete));
     }
-  }, [remindersQuery]);
+  }, [allReminders, isSuccess, isLoading]);
 
   useEffect(() => {
     if (reminders.length > 0) {
@@ -178,7 +182,7 @@ export default function RemindersScreen() {
           setReminderToEdit={setReminderToEdit}
           editReminder={editReminder}
         />
-        {!remindersQuery.isLoading ? (
+        {!isLoading ? (
           <>
             {reminders.length > 0 || completedReminders.length > 0 ? (
               <>
@@ -208,7 +212,7 @@ export default function RemindersScreen() {
             )}
           </>
         ) : (
-          <Spinner visible={remindersQuery.isLoading} textContent={'Loading...'} textStyle={styles.spinnerTextStyle} />
+          <Spinner visible={isLoading} textContent={'Loading...'} textStyle={styles.spinnerTextStyle} />
         )}
       </View>
       <SpecialModal modalVisible={modalVisible} setModalVisible={setModalVisible} />

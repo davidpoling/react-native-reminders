@@ -1,12 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableHighlight} from 'react-native';
-import {useDarkMode} from 'react-native-dynamic';
+import {View, Text, TouchableHighlight, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from '../ListItemStyles';
 
 export default function ShoppingListScreenItem({item, checkShoppingListItem, onEditPressed}: any) {
   const [iconName, setIconName] = useState<string>('circle-thin');
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useColorScheme() === 'dark';
 
   function iconPressed() {
     setIconName('circle');

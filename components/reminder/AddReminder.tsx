@@ -1,16 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TextInput, TouchableOpacity, Modal} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Modal, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-date-picker';
 import styles from '../AddItemStyles';
-import {useDarkMode} from 'react-native-dynamic';
 
 export default function AddReminder({addReminder, reminderToEdit, setReminderToEdit, editReminder}: any) {
   const [text, setText] = useState<string>('');
   const [dateTime, setDateTime] = useState<Date>(new Date());
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [addButtonEnabled, setAddButtonEnabled] = useState<boolean>(false);
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useColorScheme() === 'dark';
 
   function onChange(textValue: string) {
     setText(textValue);
